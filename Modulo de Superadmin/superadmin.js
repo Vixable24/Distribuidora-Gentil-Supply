@@ -8,7 +8,7 @@ const USUARIOS_SEMILLA = (window.USUARIOS_SEMILLA_GLOBAL && window.USUARIOS_SEMI
   { id: 'USR-002', nombre: 'Carlos Eduardo Gentil', username: 'gerente', password: '1234', rol: 'Gerente', ruta: 'Gerencia General', email: 'gerencia@gentilsupply.com', telefono: '0414-7900002', estado: 'Activo' },
   { id: 'USR-003', nombre: 'Vendedor Ruta 2', username: 'ruta2', password: '1234', rol: 'Vendedor', ruta: 'Ruta 2', email: 'ruta2@gentilsupply.com', telefono: '0412-3548810', estado: 'Activo' },
   { id: 'USR-004', nombre: 'Mariana Salazar', username: 'facturacion', password: '1234', rol: 'Facturación', ruta: 'Facturación y Cobranzas', email: 'facturacion@gentilsupply.com', telefono: '0424-8812200', estado: 'Activo' },
-  { id: 'USR-005', nombre: 'José Rodríguez', username: 'despacho', password: '1234', rol: 'Operador de Despacho', ruta: 'Almacén La Asunción', email: 'despacho@gentilsupply.com', telefono: '0416-6950099', estado: 'Activo' },
+  { id: 'USR-005', nombre: 'José Rodríguez', username: 'despacho', password: '1234', rol: 'Operador de Despacho', ruta: 'Almacén El Piache', email: 'despacho@gentilsupply.com', telefono: '0416-6950099', estado: 'Activo' },
   { id: 'USR-006', nombre: 'Vendedor Ruta 3', username: 'ruta3', password: '1234', rol: 'Vendedor', ruta: 'Ruta 3', email: 'ruta3@gentilsupply.com', telefono: '0412-3548813', estado: 'Activo' },
   { id: 'USR-007', nombre: 'Vendedor Ruta 4', username: 'ruta4', password: '1234', rol: 'Vendedor', ruta: 'Ruta 4', email: 'ruta4@gentilsupply.com', telefono: '0414-3548814', estado: 'Activo' },
   { id: 'USR-008', nombre: 'Vendedor Ruta 5', username: 'ruta5', password: '1234', rol: 'Vendedor', ruta: 'Ruta 5', email: 'ruta5@gentilsupply.com', telefono: '0416-3548815', estado: 'Activo' },
@@ -18,17 +18,37 @@ const USUARIOS_SEMILLA = (window.USUARIOS_SEMILLA_GLOBAL && window.USUARIOS_SEMI
 const _s$ = id => document.getElementById(id);
 const _esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+const RUTAS_POR_ROL = {
+  'Vendedor': ['Ruta 2', 'Ruta 3', 'Ruta 4', 'Ruta 5', 'Ruta 9'],
+  'Facturación': ['Facturación y Cobranzas'],
+  'Operador de Despacho': ['Almacén El Piache'],
+  'Gerente': ['Gerencia General'],
+  'Superadmin': ['Dirección General']
+};
+
 function cargarUsuarios() {
   try {
     const d = JSON.parse(localStorage.getItem(USUARIOS_STORAGE_KEY));
     if (Array.isArray(d) && d.length) {
       let cambio = false;
       const lista = d.map(u => {
-        if (u && u.rol === 'Vendedor' && typeof window.normalizarRutaSistema === 'function') {
-          const r = window.normalizarRutaSistema(u.ruta || u.username);
-          if (u.ruta !== r) { cambio = true; return Object.assign({}, u, { ruta: r }); }
+        if (!u || typeof u !== 'object') return u;
+        let mod = false;
+        const copia = Object.assign({}, u);
+        if (copia.rol === 'Vendedor' && typeof window.normalizarRutaSistema === 'function') {
+          const r = window.normalizarRutaSistema(copia.ruta || copia.username);
+          if (copia.ruta !== r) { copia.ruta = r; mod = true; }
+        } else if (copia.ruta === 'Almacén La Asunción') {
+          copia.ruta = 'Almacén El Piache';
+          mod = true;
         }
-        return u;
+        if (!copia.password) {
+          const matchS = USUARIOS_SEMILLA.find(s => String(s.username).toLowerCase() === String(copia.username || '').toLowerCase());
+          copia.password = matchS ? matchS.password : '1234';
+          mod = true;
+        }
+        if (mod) cambio = true;
+        return copia;
       });
       USUARIOS_SEMILLA.forEach(s => {
         if (!lista.some(u => u && String(u.username || '').toLowerCase() === s.username.toLowerCase())) {
@@ -42,6 +62,109 @@ function cargarUsuarios() {
   } catch (e) {}
   localStorage.setItem(USUARIOS_STORAGE_KEY, JSON.stringify(USUARIOS_SEMILLA));
   return JSON.parse(JSON.stringify(USUARIOS_SEMILLA));
+}
+
+function actualizarOpcionesRutaUsuario(valorPreferido = '') {
+  const rolSel = _s$('usrRol');
+  const rutaSel = _s$('usrRuta');
+  if (!rolSel || !rutaSel) return;
+  const rol = rolSel.value || 'Vendedor';
+  let opciones = [...(RUTAS_POR_ROL[rol] || ['General'])];
+  let val = String(valorPreferido || '').trim();
+  if (val === 'Almacén La Asunción') val = 'Almacén El Piache';
+  if (val && !opciones.includes(val)) {
+    opciones.push(val);
+  }
+  rutaSel.innerHTML = opciones.map(op => `<option value="${_esc(op)}">${_esc(op)}</option>`).join('');
+  rutaSel.value = val && opciones.includes(val) ? val : opciones[0];
+}
+
+function alternarVisibilidadPasswordUsuario() {
+  const input = _s$('usrPassword');
+  const icon = _s$('usrPassEyeIcon');
+  if (!input || !icon) return;
+  const mostrar = input.type === 'password';
+  input.type = mostrar ? 'text' : 'password';
+  icon.setAttribute('data-lucide', mostrar ? 'eye-off' : 'eye');
+  if (window.lucide) lucide.createIcons();
+}
+
+// Validación estricta del teléfono (igual que Nuevo Cliente en Ventas): solo dígitos y guion en formato 123-4567 o 1234567
+function normalizarTelefonoUsuarioConCodigo(telRaw) {
+  const s = String(telRaw || '').trim();
+  if (!s) return '';
+  let soloDigitos = s.replace(/\D+/g, '');
+  if (soloDigitos.startsWith('58') && soloDigitos.length >= 12) {
+    soloDigitos = soloDigitos.slice(2);
+  }
+  if (!soloDigitos.startsWith('0') && soloDigitos.length === 10) {
+    soloDigitos = '0' + soloDigitos;
+  }
+  if (soloDigitos.length === 11 && soloDigitos.startsWith('0')) {
+    const cod = soloDigitos.slice(0, 4);
+    const parte1 = soloDigitos.slice(4, 7);
+    const parte2 = soloDigitos.slice(7);
+    return `${cod}-${parte1}-${parte2}`;
+  }
+  return s;
+}
+
+function validarTeclaTelefonoUsuario(e) {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const permitidas = ['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Enter'];
+  if (permitidas.includes(e.key)) return;
+  if (e.key === '-') {
+    const digitos = (e.target.value || '').replace(/\D+/g, '');
+    const yaTieneGuion = (e.target.value || '').includes('-');
+    // El guion solo se permite si ya se escribieron exactamente 3 dígitos numéricos y no hay otro guion (ejemplo: 123-)
+    if (yaTieneGuion || digitos.length !== 3) {
+      e.preventDefault();
+    }
+    return;
+  }
+  if (!/^[0-9]$/.test(e.key)) {
+    e.preventDefault();
+  }
+}
+
+function validarInputTelefonoUsuario(input) {
+  if (!input) return;
+  const val = String(input.value || '');
+  if (val.includes('-')) {
+    const partes = val.split('-');
+    const antes = partes[0].replace(/\D+/g, '').slice(0, 3);
+    const despues = partes.slice(1).join('').replace(/\D+/g, '');
+    if (antes.length === 3) {
+      input.value = antes + '-' + despues.slice(0, 4);
+    } else {
+      input.value = (antes + despues).slice(0, 7);
+    }
+  } else {
+    input.value = val.replace(/\D+/g, '').slice(0, 7);
+  }
+}
+
+function pegarTelefonoUsuario(e, input) {
+  e.preventDefault();
+  const texto = ((e.clipboardData || window.clipboardData).getData('text') || '').trim();
+  const soloDig = texto.replace(/\D+/g, '');
+  const selCod = _s$('usrTelCodigo');
+  if (selCod && /^(0412|0422|0416|0426|0414|0424)\d{7}$/.test(soloDig)) {
+    const cod = soloDig.slice(0, 4);
+    if (Array.from(selCod.options || []).some(o => o.value === cod)) {
+      selCod.value = cod;
+    }
+    input.value = texto.includes('-') ? `${soloDig.slice(4, 7)}-${soloDig.slice(7)}` : soloDig.slice(4);
+    validarInputTelefonoUsuario(input);
+    return;
+  }
+  input.value = texto;
+  validarInputTelefonoUsuario(input);
+}
+
+function esNumeroTelefonoUsuarioValido(numTel) {
+  const s = String(numTel || '').trim();
+  return /^\d{7}$/.test(s) || /^\d{3}-\d{4}$/.test(s);
 }
 
 function guardarUsuarios(lista) {
@@ -126,7 +249,7 @@ function renderUsuarios() {
     <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-700/50 transition-colors">
       <td class="py-3.5 px-4">
         <p class="font-semibold text-gray-900 dark:text-white">${_esc(u.nombre)}</p>
-        <p class="text-xs font-mono text-[#1c4d37] dark:text-emerald-400">@${_esc(u.username)} · ${_esc(u.id)}</p>
+        <p class="text-xs font-mono text-[#1c4d37] dark:text-emerald-400">Usuario: ${_esc(u.username)} · ${_esc(u.id)}</p>
       </td>
       <td class="py-3.5 px-4">${badgeRolUsuario(u.rol)}</td>
       <td class="py-3.5 px-4 text-gray-700 dark:text-gray-300">${_esc(u.ruta || '—')}</td>
@@ -162,11 +285,14 @@ function abrirModalUsuario() {
   _s$('usrNombre').value = '';
   _s$('usrUsername').value = '';
   _s$('usrPassword').value = '';
+  _s$('usrPassword').type = 'password';
   _s$('usrPassword').required = true;
+  if (_s$('usrPassEyeIcon')) _s$('usrPassEyeIcon').setAttribute('data-lucide', 'eye');
   _s$('usrRol').value = 'Vendedor';
-  _s$('usrRuta').value = '';
+  actualizarOpcionesRutaUsuario('Ruta 2');
   _s$('usrEmail').value = '';
-  _s$('usrTelefono').value = '';
+  if (_s$('usrTelCodigo')) _s$('usrTelCodigo').value = '0412';
+  if (_s$('usrTelNumero')) _s$('usrTelNumero').value = '';
   _s$('usrEstado').value = 'Activo';
   modal.classList.remove('hidden');
   modal.classList.add('flex');
@@ -184,12 +310,37 @@ function editarUsuario(id) {
   _s$('btnGuardarUsuario').textContent = 'Guardar Cambios';
   _s$('usrNombre').value = u.nombre || '';
   _s$('usrUsername').value = u.username || '';
-  _s$('usrPassword').value = '';
-  _s$('usrPassword').required = false;
+  _s$('usrPassword').value = u.password || '1234';
+  _s$('usrPassword').type = 'text';
+  _s$('usrPassword').required = true;
+  if (_s$('usrPassEyeIcon')) _s$('usrPassEyeIcon').setAttribute('data-lucide', 'eye-off');
   _s$('usrRol').value = u.rol || 'Vendedor';
-  _s$('usrRuta').value = u.ruta || '';
+  actualizarOpcionesRutaUsuario(u.ruta || '');
   _s$('usrEmail').value = u.email || '';
-  _s$('usrTelefono').value = u.telefono || '';
+
+  // Separar código de operador (0412, 0422, 0416, 0426, 0414, 0424) y número de 7 dígitos (igual que Ventas)
+  const telNorm = normalizarTelefonoUsuarioConCodigo(u.telefono);
+  const selCod = _s$('usrTelCodigo');
+  const inpNum = _s$('usrTelNumero');
+  if (selCod) selCod.value = '0412';
+  const mTel = telNorm.match(/^(0\d{3})-(.+)$/);
+  if (mTel && selCod && inpNum) {
+    const cod = mTel[1];
+    const existeOpcion = Array.from(selCod.options || []).some(o => o.value === cod);
+    selCod.value = existeOpcion ? cod : '0412';
+    inpNum.value = mTel[2];
+  } else if (inpNum) {
+    const soloDig = telNorm.replace(/\D+/g, '');
+    if (soloDig.length >= 10 && selCod) {
+      const cod = soloDig.startsWith('0') ? soloDig.slice(0, 4) : '0' + soloDig.slice(0, 3);
+      const existeOpcion = Array.from(selCod.options || []).some(o => o.value === cod);
+      selCod.value = existeOpcion ? cod : '0412';
+      inpNum.value = soloDig.slice(-7);
+    } else {
+      inpNum.value = telNorm.replace(/[^0-9-]/g, '').slice(0, 8);
+    }
+  }
+
   _s$('usrEstado').value = u.estado || 'Activo';
   modal.classList.remove('hidden');
   modal.classList.add('flex');
@@ -214,13 +365,20 @@ function guardarUsuario(e) {
   const rol = _s$('usrRol').value;
   const ruta = _s$('usrRuta').value.trim();
   const email = _s$('usrEmail').value.trim();
-  const telefono = _s$('usrTelefono').value.trim();
+  const codArea = (_s$('usrTelCodigo') && _s$('usrTelCodigo').value) || '0412';
+  const numTelRaw = (_s$('usrTelNumero') && _s$('usrTelNumero').value.trim()) || '';
   const estado = _s$('usrEstado').value;
 
   if ((!editId && password.length < 4) || (editId && password.length > 0 && password.length < 4)) {
     mostrarNotificacionSistema('La contraseña debe tener al menos 4 caracteres.');
     return;
   }
+  if (!esNumeroTelefonoUsuarioValido(numTelRaw)) {
+    mostrarNotificacionSistema('El número telefónico debe tener exactamente 7 dígitos: en formato directo 1234567 o con guion 123-4567 (3 dígitos antes del guion y 4 dígitos después).');
+    if (_s$('usrTelNumero')) _s$('usrTelNumero').focus();
+    return;
+  }
+  const telefono = `${codArea}-${numTelRaw}`;
   const duplicado = usuariosData.some(u => u.id !== editId && (u.username.toLowerCase() === username || u.email.toLowerCase() === email.toLowerCase()));
   if (duplicado) {
     mostrarNotificacionSistema('Ya existe otro usuario registrado con ese nombre de usuario o correo.');
@@ -259,7 +417,7 @@ function guardarUsuario(e) {
       guardarUsuarios(usuariosData);
       cerrarModalUsuario();
       renderUsuarios();
-      mostrarNotificacionSistema(`Usuario "${nombre}" (@${username}) creado con rol ${rol}.`);
+      mostrarNotificacionSistema(`Usuario "${nombre}" (${username}) creado con rol ${rol}.`);
     }
   };
 
@@ -270,9 +428,10 @@ function guardarUsuario(e) {
     textoConfirmar: editId ? 'Guardar Cambios' : 'Crear Usuario',
     detalleHtml: `
       <div class="flex justify-between"><span class="text-gray-500">Nombre:</span><span class="font-semibold">${_esc(nombre)}</span></div>
-      <div class="flex justify-between"><span class="text-gray-500">Usuario:</span><span class="font-mono font-bold text-[#1c4d37] dark:text-emerald-400">@${_esc(username)}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Usuario:</span><span class="font-mono font-bold text-[#1c4d37] dark:text-emerald-400">${_esc(username)}</span></div>
       <div class="flex justify-between"><span class="text-gray-500">Rol:</span><span class="font-semibold">${_esc(rol)}</span></div>
       <div class="flex justify-between"><span class="text-gray-500">Área / Ruta:</span><span>${_esc(ruta || 'General')}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500">Teléfono:</span><span class="font-mono">${_esc(telefono)}</span></div>
     `,
     onConfirm: ejecutarGuardado
   });
@@ -286,7 +445,7 @@ function alternarEstadoUsuario(id) {
   u.estado = nuevoEst;
   guardarUsuarios(usuariosData);
   renderUsuarios();
-  mostrarNotificacionSistema(`Cuenta @${u.username} marcada como ${nuevoEst}.`);
+  mostrarNotificacionSistema(`Cuenta ${u.username} marcada como ${nuevoEst}.`);
 }
 
 function eliminarUsuario(id) {
@@ -299,7 +458,7 @@ function eliminarUsuario(id) {
   }
   confirmarAccionSistema({
     titulo: 'Eliminar Usuario',
-    mensaje: `¿Estás seguro de eliminar permanentemente la cuenta de "${u.nombre}" (@${u.username})?`,
+    mensaje: `¿Estás seguro de eliminar permanentemente la cuenta de "${u.nombre}" (${u.username})?`,
     icono: 'trash-2',
     variante: 'danger',
     textoConfirmar: 'Eliminar Usuario',
@@ -307,7 +466,7 @@ function eliminarUsuario(id) {
       usuariosData = usuariosData.filter(x => x.id !== id);
       guardarUsuarios(usuariosData);
       renderUsuarios();
-      mostrarNotificacionSistema(`Usuario @${u.username} eliminado.`);
+      mostrarNotificacionSistema(`Usuario ${u.username} eliminado.`);
     }
   });
 }

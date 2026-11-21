@@ -501,28 +501,32 @@ function actualizarIdentidadRutaVentas() {
   const renderBadge = (el) => {
     if (!el) return;
     if (bloqueado && ses) {
-      el.textContent = `${rutaActiva} (@${ses.username})`;
+      el.textContent = rutaActiva;
       return;
     }
     const opciones = RUTAS_VENTAS_VALIDAS.includes(rutaActiva) ? RUTAS_VENTAS_VALIDAS : [rutaActiva, ...RUTAS_VENTAS_VALIDAS];
     el.innerHTML = `
-      <select onchange="cambiarRutaActivaVentas(this.value)" title="Cambiar ruta de vendedor activa" class="bg-emerald-50/70 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700/60 text-[#1c4d37] dark:text-emerald-300 font-bold text-sm rounded-lg px-2 py-0.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20">
-        ${opciones.map(r => `<option value="${escHtml(r)}" ${r === rutaActiva ? 'selected' : ''}>${escHtml(r)}</option>`).join('')}
-      </select>`;
+      <div class="relative inline-block align-middle">
+        <select id="selectorRutaActivaVentas" onchange="cambiarRutaActivaVentas(this.value)" title="Cambiar ruta de vendedor activa" class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-[#1c4d37] dark:text-emerald-400 font-bold text-sm rounded-lg pl-3 pr-8 py-1.5 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
+          ${opciones.map(r => `<option value="${escHtml(r)}" ${r === rutaActiva ? 'selected' : ''}>${escHtml(r)}</option>`).join('')}
+        </select>
+        <i data-lucide="chevron-down" class="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+      </div>`;
   };
 
   renderBadge(document.getElementById('nombreRutaActiva'));
   document.querySelectorAll('.nombreRutaActiva').forEach(el => renderBadge(el));
 
-  // Actualizar etiqueta "Usuario:" del sidebar sin alterar el diseño visual
+  // Actualizar etiqueta "Usuario:" del sidebar sin @ y mostrando rol/ruta correspondiente
   const sideUserEl = document.querySelector('aside p.font-semibold.text-sm.text-white');
   if (sideUserEl) {
-    if (ses && ses.username) {
-      sideUserEl.textContent = bloqueado ? `${rutaActiva} (@${ses.username})` : `${ses.nombre || ses.username} · ${rutaActiva}`;
+    if (ses && ses.rol && !bloqueado) {
+      sideUserEl.textContent = `${ses.rol} · ${rutaActiva}`;
     } else {
-      sideUserEl.textContent = `Vendedor · ${rutaActiva}`;
+      sideUserEl.textContent = rutaActiva;
     }
   }
+  if (window.lucide) lucide.createIcons();
 }
 
 function cambiarRutaActivaVentas(nuevaRuta) {
@@ -556,7 +560,8 @@ function normalizarCliente(c) {
     contacto: c.contacto || '',
     telefono: normalizarTelefonoConCodigo(c.telefono),
     email: c.email || '',
-    direccion: c.direccion || ''
+    direccion: c.direccion || '',
+    activo: c.activo !== false && c.activo !== 0 && c.activo !== '0'
   };
 }
 
@@ -622,23 +627,44 @@ function filtrarClientes() {
   const q = input.value.trim().toLowerCase();
   const res = clientesDeRutaActiva().filter(c => (c.nombre + ' ' + c.rif + ' ' + c.zona).toLowerCase().includes(q));
   const rutaActiva = obtenerRutaActivaVentas();
-  lista.innerHTML = res.length ? res.map(c => `
+  lista.innerHTML = res.length ? res.map(c => {
+    const desactivado = c.activo === false;
+    if (desactivado) {
+      return `
+      <button type="button" onclick="notificarClienteDesactivado('${c.nombre.replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-2.5 bg-red-50/40 dark:bg-red-950/20 opacity-75 hover:opacity-100 transition-colors flex items-center justify-between gap-3 cursor-not-allowed">
+        <div>
+          <span class="text-sm font-medium text-gray-600 dark:text-gray-300 block">${escHtml(c.nombre)} <span class="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">Desactivado</span></span>
+          <span class="text-[11px] text-red-600 dark:text-red-400 font-medium">${escHtml(c.ruta)} · No disponible para nuevas ventas</span>
+        </div>
+        <span class="text-xs font-mono text-gray-400 dark:text-gray-500 whitespace-nowrap">${escHtml(c.rif)}</span>
+      </button>`;
+    }
+    return `
     <button type="button" onclick="seleccionarCliente('${c.nombre.replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-between gap-3">
       <div>
         <span class="text-sm font-medium text-gray-800 dark:text-gray-100 block">${escHtml(c.nombre)}</span>
         <span class="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">${escHtml(c.ruta)} · ${escHtml(c.zona)}</span>
       </div>
       <span class="text-xs font-mono text-gray-400 dark:text-gray-500 whitespace-nowrap">${escHtml(c.rif)}</span>
-    </button>`).join('')
+    </button>`;
+  }).join('')
     : `<p class="px-4 py-3 text-sm text-gray-400 dark:text-gray-500">No se encontraron clientes asignados a ${escHtml(rutaActiva)}.</p>`;
   lista.classList.remove('hidden');
   document.getElementById('clienteLimpiar').classList.toggle('hidden', !input.value);
+}
+
+function notificarClienteDesactivado(nombre) {
+  toast(`El cliente "${nombre}" está desactivado y no puede recibir nuevas ventas. Sus facturas y deudas pendientes siguen activas; desbloquéalo en Clientes con tu contraseña.`);
 }
 
 function seleccionarCliente(nombre) {
   const c = clientesDeRutaActiva().find(x => x.nombre === nombre);
   if (!c) {
     toast(`Este cliente no pertenece a la cartera de ${obtenerRutaActivaVentas()}.`);
+    return;
+  }
+  if (c.activo === false) {
+    notificarClienteDesactivado(c.nombre);
     return;
   }
   document.getElementById('clienteSelect').value = c.nombre;
@@ -1131,6 +1157,10 @@ function procesarVenta() {
   const rutaActiva = obtenerRutaActivaVentas();
   if (!esClienteDeRutaActiva(clienteNombre)) {
     toast(`El cliente seleccionado no pertenece a la cartera de ${rutaActiva}.`);
+    return;
+  }
+  if (cliObj.activo === false) {
+    notificarClienteDesactivado(clienteNombre);
     return;
   }
   const idPreliminar = siguienteId('V', ventasData);
@@ -2709,8 +2739,19 @@ function renderClientes() {
     const compras = comprasDeCliente(c.nombre);
     const saldo = saldoDeCliente(c.nombre);
     const realIdx = CLIENTES.indexOf(c);
-    return `<tr onclick="verCuentaCliente(${realIdx})" class="hover:bg-gray-50/80 dark:hover:bg-gray-700/50 transition-colors cursor-pointer">
-      <td class="py-3.5 px-4"><p class="font-semibold text-gray-900 dark:text-white">${escHtml(c.nombre)}</p><p class="text-xs text-gray-400 dark:text-gray-500"><span class="font-mono font-semibold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)}</span> · ${escHtml(c.zona)} · <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-[#1c4d37] dark:bg-emerald-900/30 dark:text-emerald-300">${escHtml(c.ruta || rutaActual)}</span></p></td>
+    const inactivo = c.activo === false;
+    const badgeEstadoCli = inactivo
+      ? '<span class="ml-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">Desactivado</span>'
+      : '';
+    const btnEstado = inactivo
+      ? `<button type="button" onclick="event.stopPropagation(); abrirModalDesbloquearCliente(${realIdx})" class="text-amber-600 hover:text-[#1c4d37] dark:text-amber-400 dark:hover:text-emerald-400 p-1.5 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="Desbloquear / Reactivar Cliente">
+          <i data-lucide="unlock" class="w-4 h-4"></i>
+        </button>`
+      : `<button type="button" onclick="event.stopPropagation(); desactivarCliente(${realIdx})" class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors" title="Desactivar Cliente (Bloquear Ventas)">
+          <i data-lucide="lock" class="w-4 h-4"></i>
+        </button>`;
+    return `<tr onclick="verCuentaCliente(${realIdx})" class="${inactivo ? 'bg-red-50/20 dark:bg-red-950/10' : ''} hover:bg-gray-50/80 dark:hover:bg-gray-700/50 transition-colors cursor-pointer">
+      <td class="py-3.5 px-4"><p class="font-semibold ${inactivo ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}">${escHtml(c.nombre)}${badgeEstadoCli}</p><p class="text-xs text-gray-400 dark:text-gray-500"><span class="font-mono font-semibold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)}</span> · ${escHtml(c.zona)} · <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-[#1c4d37] dark:bg-emerald-900/30 dark:text-emerald-300">${escHtml(c.ruta || rutaActual)}</span></p></td>
       <td class="py-3.5 px-4">${escHtml(c.contacto || '—')}<p class="text-xs text-gray-400 dark:text-gray-500">${escHtml(c.email || '')}</p></td>
       <td class="py-3.5 px-4 font-mono text-xs">${escHtml(c.telefono || '—')}</td>
       <td class="py-3.5 px-4 font-medium"><p>${fmt2(compras)}</p><p class="text-[11px] text-gray-400 dark:text-gray-500">${fmtBs(compras * tasa)}</p></td>
@@ -2723,6 +2764,7 @@ function renderClientes() {
           <button type="button" onclick="event.stopPropagation(); verCuentaCliente(${realIdx})" class="text-gray-400 hover:text-[#1c4d37] dark:hover:text-emerald-400 p-1.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Ver Cuenta">
             <i data-lucide="eye" class="w-4 h-4"></i>
           </button>
+          ${btnEstado}
         </div>
       </td>
     </tr>`;
@@ -2873,6 +2915,7 @@ function registrarCliente(e) {
     ? obtenerRutaActivaVentas()
     : normalizarRutaVenta((document.getElementById('cliRuta') && document.getElementById('cliRuta').value) || obtenerRutaActivaVentas());
 
+  const esEdicion = editIdx >= 0 && Boolean(CLIENTES[editIdx]);
   const datosCliente = {
     nombre,
     rif,
@@ -2881,10 +2924,10 @@ function registrarCliente(e) {
     contacto: document.getElementById('cliContacto').value.trim(),
     telefono: telefonoFinal,
     email: document.getElementById('cliEmail').value.trim(),
-    direccion: document.getElementById('cliDireccion').value.trim()
+    direccion: document.getElementById('cliDireccion').value.trim(),
+    activo: esEdicion ? (CLIENTES[editIdx].activo !== false) : true
   };
 
-  const esEdicion = editIdx >= 0 && Boolean(CLIENTES[editIdx]);
   const formRef = e.target;
   const detalleClienteHtml = `
     <div class="flex justify-between gap-2"><span class="text-gray-500 dark:text-gray-400">Cliente / Empresa:</span><span class="font-semibold text-gray-800 dark:text-gray-100 text-right">${escHtml(datosCliente.nombre)}</span></div>
@@ -2984,6 +3027,165 @@ function verCuentaCliente(idx) {
     </div>`;
   openModal('modalCuenta');
   if (window.lucide) lucide.createIcons();
+}
+
+function desactivarCliente(idx) {
+  const c = CLIENTES[idx];
+  if (!c || c.activo === false) return;
+  const saldo = saldoDeCliente(c.nombre);
+  confirmarAccionSistema({
+    titulo: 'Desactivar Cliente',
+    mensaje: 'El cliente quedará bloqueado para realizar nuevas ventas. Sus facturas emitidas y saldo pendiente permanecerán vigentes.',
+    icono: 'lock',
+    variante: 'danger',
+    textoConfirmar: 'Desactivar Cliente',
+    detalleHtml: `
+      <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Cliente:</span><span class="font-semibold text-gray-800 dark:text-gray-100">${escHtml(c.nombre)}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">RIF / Ruta:</span><span class="font-mono font-bold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)} · ${escHtml(c.ruta || obtenerRutaActivaVentas())}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Deuda Pendiente:</span><span class="font-bold text-amber-600 dark:text-amber-400">${fmt2(saldo)}</span></div>
+    `,
+    onConfirm: () => {
+      if (!CLIENTES[idx]) return;
+      CLIENTES[idx].activo = false;
+      guardarClientes();
+      renderClientes();
+      filtrarClientes();
+      toast(`Cliente "${c.nombre}" desactivado. No se le podrán registrar nuevas ventas hasta desbloquearlo.`);
+    }
+  });
+}
+
+function obtenerUsuarioAutorizadorDesbloqueo() {
+  const ses = leerSesionActivaVentas();
+  if (ses && ses.username) return ses.username;
+  const rutaAct = obtenerRutaActivaVentas();
+  try {
+    const usuarios = JSON.parse(localStorage.getItem('gs_usuarios_v1')) || window.USUARIOS_SEMILLA_GLOBAL || [];
+    const match = usuarios.find(u => u && u.rol === 'Vendedor' && normalizarRutaVenta(u.ruta || u.username) === rutaAct);
+    if (match && match.username) return match.username;
+  } catch (e) {}
+  return 'ruta' + String(rutaAct).replace(/\D+/g, '') || 'ruta2';
+}
+
+function abrirModalDesbloquearCliente(idx) {
+  const c = CLIENTES[idx];
+  const modal = document.getElementById('modalDesbloquearCliente');
+  if (!c || !modal) return;
+
+  const saldo = saldoDeCliente(c.nombre);
+  const userAuth = obtenerUsuarioAutorizadorDesbloqueo();
+  document.getElementById('desbloqClienteIdx').value = String(idx);
+  document.getElementById('desbloqPassword').value = '';
+  document.getElementById('desbloqPassword').type = 'password';
+  const eye = document.getElementById('desbloqEyeIcon');
+  if (eye) eye.setAttribute('data-lucide', 'eye');
+  const errBox = document.getElementById('desbloqError');
+  if (errBox) errBox.classList.add('hidden');
+  document.getElementById('desbloqSubtitulo').textContent = `Ingresa la contraseña del usuario (${userAuth}) para desbloquear y reactivar a este cliente.`;
+  document.getElementById('desbloqDetalle').innerHTML = `
+    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Cliente:</span><span class="font-semibold text-gray-800 dark:text-gray-100">${escHtml(c.nombre)}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">RIF / Ruta:</span><span class="font-mono font-bold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)} · ${escHtml(c.ruta || obtenerRutaActivaVentas())}</span></div>
+    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Saldo Pendiente:</span><span class="font-bold text-amber-600 dark:text-amber-400">${fmt2(saldo)}</span></div>
+  `;
+  openModal('modalDesbloquearCliente');
+  if (window.lucide) lucide.createIcons();
+  setTimeout(() => {
+    const inp = document.getElementById('desbloqPassword');
+    if (inp) inp.focus();
+  }, 120);
+}
+
+function cerrarModalDesbloquearCliente() {
+  closeModal('modalDesbloquearCliente');
+}
+
+function alternarVisibilidadPasswordDesbloq() {
+  const inp = document.getElementById('desbloqPassword');
+  const icon = document.getElementById('desbloqEyeIcon');
+  if (!inp || !icon) return;
+  const mostrar = inp.type === 'password';
+  inp.type = mostrar ? 'text' : 'password';
+  icon.setAttribute('data-lucide', mostrar ? 'eye-off' : 'eye');
+  if (window.lucide) lucide.createIcons();
+}
+
+async function confirmarDesbloqueoCliente(e) {
+  e.preventDefault();
+  const idx = parseInt((document.getElementById('desbloqClienteIdx') && document.getElementById('desbloqClienteIdx').value) || '-1', 10);
+  const c = CLIENTES[idx];
+  const password = (document.getElementById('desbloqPassword') && document.getElementById('desbloqPassword').value) || '';
+  const errBox = document.getElementById('desbloqError');
+  const errTxt = document.getElementById('desbloqErrorTexto');
+  const btn = document.getElementById('btnConfirmarDesbloq');
+  if (!c) return;
+
+  const mostrarErr = (msg) => {
+    if (errTxt) errTxt.textContent = msg;
+    if (errBox) errBox.classList.remove('hidden');
+  };
+
+  if (!password) {
+    mostrarErr('Ingresa la contraseña del usuario para desbloquear.');
+    return;
+  }
+
+  const userAuth = obtenerUsuarioAutorizadorDesbloqueo();
+  if (btn) btn.disabled = true;
+
+  let autorizado = false;
+  let verificadoEnDb = false;
+
+  try {
+    const resp = await fetch('../Base de Datos/api.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', username: userAuth, password })
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.conectado === true) {
+        verificadoEnDb = true;
+        autorizado = Boolean(data.ok);
+        if (!autorizado) {
+          mostrarErr(data.mensaje || `Contraseña incorrecta para el usuario ${userAuth}.`);
+        }
+      }
+    }
+  } catch (err) {}
+
+  if (!verificadoEnDb) {
+    let usuarios = [];
+    try {
+      usuarios = JSON.parse(localStorage.getItem('gs_usuarios_v1')) || [];
+    } catch (e2) {}
+    if (!Array.isArray(usuarios) || !usuarios.length) {
+      usuarios = window.USUARIOS_SEMILLA_GLOBAL || [];
+    }
+    const uObj = usuarios.find(u => u && String(u.username || '').toLowerCase() === String(userAuth).toLowerCase());
+    const seedU = (window.USUARIOS_SEMILLA_GLOBAL || []).find(s => String(s.username).toLowerCase() === String(userAuth).toLowerCase());
+    const claveReal = (uObj && uObj.password) ? String(uObj.password) : (seedU ? seedU.password : '1234');
+    if (uObj && (uObj.estado || 'Activo') !== 'Activo') {
+      mostrarErr('La cuenta del usuario está inactiva.');
+    } else if (password === claveReal) {
+      autorizado = true;
+    } else {
+      mostrarErr(`Contraseña incorrecta para el usuario ${userAuth}.`);
+    }
+  }
+
+  if (btn) btn.disabled = false;
+  if (!autorizado) {
+    const inp = document.getElementById('desbloqPassword');
+    if (inp) inp.focus();
+    return;
+  }
+
+  CLIENTES[idx].activo = true;
+  guardarClientes();
+  cerrarModalDesbloquearCliente();
+  renderClientes();
+  filtrarClientes();
+  toast(`Cliente "${c.nombre}" desbloqueado y habilitado nuevamente para ventas.`);
 }
 
 // --- COMÚN & DASHBOARD DE VENTAS CONECTADO A DATOS REALES ---

@@ -43,6 +43,7 @@ CREATE TABLE `usuarios` (
   `email` VARCHAR(120) NOT NULL,
   `telefono` VARCHAR(25) DEFAULT NULL,
   `password_hash` VARCHAR(255) NOT NULL,
+  `clave_visible` VARCHAR(100) NOT NULL DEFAULT '1234',
   `rol_id` TINYINT UNSIGNED NOT NULL,
   `ruta_asignada` VARCHAR(100) DEFAULT NULL COMMENT 'Ej: Ruta 2, Gerencia General, Almacén',
   `estado` ENUM('Activo', 'Inactivo') NOT NULL DEFAULT 'Activo',
@@ -531,22 +532,22 @@ INSERT INTO `roles` (`codigo`, `nombre`, `descripcion`) VALUES
 ('despacho', 'Operador de Despacho', 'Guías de carga, estado de despacho e inventario de almacén');
 
 INSERT INTO `rutas_vendedores` (`codigo`, `nombre`, `descripcion`) VALUES
-('Ruta 2', 'Ruta 2', 'Cartera exclusiva del Vendedor Ruta 2 (@ruta2)'),
-('Ruta 3', 'Ruta 3', 'Cartera exclusiva del Vendedor Ruta 3 (@ruta3)'),
-('Ruta 4', 'Ruta 4', 'Cartera exclusiva del Vendedor Ruta 4 (@ruta4)'),
-('Ruta 5', 'Ruta 5', 'Cartera exclusiva del Vendedor Ruta 5 (@ruta5)'),
-('Ruta 9', 'Ruta 9', 'Cartera exclusiva del Vendedor Ruta 9 (@ruta9)');
+('Ruta 2', 'Ruta 2', 'Cartera exclusiva del Vendedor Ruta 2'),
+('Ruta 3', 'Ruta 3', 'Cartera exclusiva del Vendedor Ruta 3'),
+('Ruta 4', 'Ruta 4', 'Cartera exclusiva del Vendedor Ruta 4'),
+('Ruta 5', 'Ruta 5', 'Cartera exclusiva del Vendedor Ruta 5'),
+('Ruta 9', 'Ruta 9', 'Cartera exclusiva del Vendedor Ruta 9');
 
-INSERT INTO `usuarios` (`id`, `codigo`, `nombre_completo`, `username`, `email`, `telefono`, `password_hash`, `rol_id`, `ruta_asignada`, `estado`) VALUES
-(1, 'USR-001', 'Administrador Maestro', 'superadmin', 'superadmin@gentilsupply.com', '0414-7900001', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 1, 'Dirección General', 'Activo'),
-(2, 'USR-002', 'Carlos Eduardo Gentil', 'gerente', 'gerencia@gentilsupply.com', '0414-7900002', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 2, 'Gerencia General', 'Activo'),
-(3, 'USR-003', 'Vendedor Ruta 2', 'ruta2', 'ruta2@gentilsupply.com', '0412-3548810', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 3, 'Ruta 2', 'Activo'),
-(4, 'USR-004', 'Mariana Salazar', 'facturacion', 'facturacion@gentilsupply.com', '0424-8812200', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 4, 'Facturación y Cobranzas', 'Activo'),
-(5, 'USR-005', 'José Rodríguez', 'despacho', 'despacho@gentilsupply.com', '0416-6950099', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 5, 'Almacén La Asunción', 'Activo'),
-(6, 'USR-006', 'Vendedor Ruta 3', 'ruta3', 'ruta3@gentilsupply.com', '0412-3548813', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 3, 'Ruta 3', 'Activo'),
-(7, 'USR-007', 'Vendedor Ruta 4', 'ruta4', 'ruta4@gentilsupply.com', '0414-3548814', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 3, 'Ruta 4', 'Activo'),
-(8, 'USR-008', 'Vendedor Ruta 5', 'ruta5', 'ruta5@gentilsupply.com', '0416-3548815', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 3, 'Ruta 5', 'Activo'),
-(9, 'USR-009', 'Vendedor Ruta 9', 'ruta9', 'ruta9@gentilsupply.com', '0424-3548819', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', 3, 'Ruta 9', 'Activo');
+INSERT INTO `usuarios` (`id`, `codigo`, `nombre_completo`, `username`, `email`, `telefono`, `password_hash`, `clave_visible`, `rol_id`, `ruta_asignada`, `estado`) VALUES
+(1, 'USR-001', 'Administrador Maestro', 'superadmin', 'superadmin@gentilsupply.com', '0414-7900001', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 1, 'Dirección General', 'Activo'),
+(2, 'USR-002', 'Carlos Eduardo Gentil', 'gerente', 'gerencia@gentilsupply.com', '0414-7900002', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 2, 'Gerencia General', 'Activo'),
+(3, 'USR-003', 'Vendedor Ruta 2', 'ruta2', 'ruta2@gentilsupply.com', '0412-3548810', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 3, 'Ruta 2', 'Activo'),
+(4, 'USR-004', 'Mariana Salazar', 'facturacion', 'facturacion@gentilsupply.com', '0424-8812200', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 4, 'Facturación y Cobranzas', 'Activo'),
+(5, 'USR-005', 'José Rodríguez', 'despacho', 'despacho@gentilsupply.com', '0416-6950099', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 5, 'Almacén El Piache', 'Activo'),
+(6, 'USR-006', 'Vendedor Ruta 3', 'ruta3', 'ruta3@gentilsupply.com', '0412-3548813', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 3, 'Ruta 3', 'Activo'),
+(7, 'USR-007', 'Vendedor Ruta 4', 'ruta4', 'ruta4@gentilsupply.com', '0414-3548814', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 3, 'Ruta 4', 'Activo'),
+(8, 'USR-008', 'Vendedor Ruta 5', 'ruta5', 'ruta5@gentilsupply.com', '0416-3548815', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 3, 'Ruta 5', 'Activo'),
+(9, 'USR-009', 'Vendedor Ruta 9', 'ruta9', 'ruta9@gentilsupply.com', '0424-3548819', '$2y$12$4V4qNvMP2ilaJECv1cAFWOWq9FrDqWJpzYLowCpDTzuaTsYAYqJCO', '1234', 3, 'Ruta 9', 'Activo');
 
 INSERT INTO `tasas_bcv` (`fecha_valor`, `tasa_usd_bs`, `tasa_exacta`, `fecha_bcv_texto`, `consultado_el`, `verificacion_dia`, `fuente`) VALUES
 (CURDATE(), 60.50, 60.5000, DATE_FORMAT(CURDATE(), '%Y-%m-%d'), NOW(), CURDATE(), 'https://www.bcv.org.ve/');

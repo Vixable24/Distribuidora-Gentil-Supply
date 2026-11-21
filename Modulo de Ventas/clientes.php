@@ -272,7 +272,7 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Zona (Municipio de Nueva Esparta)</label>
             <div class="relative">
-              <select id="cliZona" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-3.5 pr-9 py-2.5 text-sm text-gray-800 dark:text-gray-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] cursor-pointer">
+              <select id="cliZona" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-4 pr-10 py-2.5 text-sm text-gray-800 dark:text-gray-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] cursor-pointer">
                 <option value="Antolín del Campo">Antolín del Campo</option>
                 <option value="Arismendi">Arismendi</option>
                 <option value="Díaz">Díaz</option>
@@ -285,7 +285,7 @@
                 <option value="Tubores">Tubores</option>
                 <option value="Villalba">Villalba</option>
               </select>
-              <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none"></i>
+              <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
             </div>
           </div>
         </div>
@@ -294,14 +294,14 @@
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ruta Asignada (Cartera Individual)</label>
           <div class="relative">
-            <select id="cliRuta" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-3.5 pr-9 py-2.5 text-sm font-semibold text-[#1c4d37] dark:text-emerald-400 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed">
+            <select id="cliRuta" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-4 pr-10 py-2.5 text-sm font-semibold text-[#1c4d37] dark:text-emerald-400 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed">
               <option value="Ruta 2">Ruta 2</option>
               <option value="Ruta 3">Ruta 3</option>
               <option value="Ruta 4">Ruta 4</option>
               <option value="Ruta 5">Ruta 5</option>
               <option value="Ruta 9">Ruta 9</option>
             </select>
-            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-3 text-gray-400 pointer-events-none"></i>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
           </div>
           <p id="cliRutaAyuda" class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 px-1">Los clientes registrados aquí pertenecerán únicamente a esta ruta y no aparecerán en otras rutas.</p>
         </div>
@@ -311,7 +311,7 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono (Código + Número)</label>
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
             <div class="sm:col-span-5 relative">
-              <select id="cliTelCodigo" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-3 pr-8 py-2.5 text-sm font-mono font-medium text-gray-800 dark:text-gray-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] cursor-pointer">
+              <select id="cliTelCodigo" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-4 pr-10 py-2.5 text-sm font-mono font-medium text-gray-800 dark:text-gray-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] cursor-pointer">
                 <option value="0412" selected>0412</option>
                 <option value="0422">0422</option>
                 <option value="0416">0416</option>
@@ -319,7 +319,7 @@
                 <option value="0414">0414</option>
                 <option value="0424">0424</option>
               </select>
-              <i data-lucide="chevron-down" class="w-4 h-4 absolute right-2.5 top-3 text-gray-400 pointer-events-none"></i>
+              <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
             </div>
             <div class="sm:col-span-7">
               <input id="cliTelNumero" type="text" inputmode="numeric" maxlength="8" placeholder="123-4567 o 1234567" autocomplete="off" onkeydown="bloquearTeclasTelefono(event)" oninput="validarInputTelefono(this)" onpaste="pegarTelefono(event, this)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3.5 py-2.5 text-sm font-mono text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
@@ -351,6 +351,44 @@
   <!-- MODAL: CUENTA DEL CLIENTE -->
   <div id="modalCuenta" onclick="if(event.target===this) closeModal('modalCuenta')" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden opacity-0 items-center justify-center p-4 transition-opacity duration-200">
     <div id="modalCuentaBody" class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-6 shadow-xl border border-gray-100 dark:border-gray-700"></div>
+  </div>
+
+  <!-- MODAL: DESBLOQUEAR / REACTIVAR CLIENTE (Pide contraseña manteniendo estética Gentil Supply) -->
+  <div id="modalDesbloquearCliente" onclick="if(event.target===this) cerrarModalDesbloquearCliente()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden opacity-0 items-center justify-center p-4 transition-opacity duration-200">
+    <form onsubmit="confirmarDesbloqueoCliente(event)" class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 dark:border-gray-700 space-y-4">
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-[#1c4d37] dark:text-emerald-400 flex items-center justify-center mx-auto">
+          <i data-lucide="key-round" class="w-7 h-7"></i>
+        </div>
+        <h3 class="text-xl font-bold text-[#1c4d37] dark:text-white">Desbloquear Cliente</h3>
+        <p id="desbloqSubtitulo" class="text-xs text-gray-500 dark:text-gray-400">Ingresa la contraseña de usuario para volver a habilitar nuevas ventas a este cliente.</p>
+      </div>
+
+      <input type="hidden" id="desbloqClienteIdx" value="-1">
+
+      <div id="desbloqDetalle" class="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl p-3.5 text-xs space-y-1.5"></div>
+
+      <div id="desbloqError" class="hidden p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 flex-shrink-0"></i>
+        <span id="desbloqErrorTexto"></span>
+      </div>
+
+      <div>
+        <label for="desbloqPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña del Usuario</label>
+        <div class="relative">
+          <i data-lucide="lock" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+          <input id="desbloqPassword" type="password" required autocomplete="current-password" placeholder="Ingresa tu contraseña" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-10 pr-10 py-2.5 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
+          <button type="button" onclick="alternarVisibilidadPasswordDesbloq()" class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" title="Mostrar u ocultar">
+            <i id="desbloqEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="cerrarModalDesbloquearCliente()" class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold text-sm transition-colors">Cancelar</button>
+        <button type="submit" id="btnConfirmarDesbloq" class="flex-1 px-4 py-2.5 rounded-xl bg-[#1c4d37] hover:bg-[#133928] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm transition-colors">Desbloquear</button>
+      </div>
+    </form>
   </div>
 
   <!-- Notificación -->

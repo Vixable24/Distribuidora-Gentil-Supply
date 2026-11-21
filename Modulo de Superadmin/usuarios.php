@@ -226,43 +226,56 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">Contraseña</label>
-          <input id="usrPassword" type="password" placeholder="Mínimo 4 caracteres (ej. 1234)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 py-2.5 px-3.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
+          <div class="relative">
+            <input id="usrPassword" type="password" placeholder="Mínimo 4 caracteres (ej. 1234)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 py-2.5 pl-3.5 pr-10 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
+            <button type="button" onclick="alternarVisibilidadPasswordUsuario()" title="Mostrar u ocultar contraseña" class="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+              <i id="usrPassEyeIcon" data-lucide="eye" class="w-4 h-4"></i>
+            </button>
+          </div>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">Rol del Sistema</label>
           <div class="relative">
-            <select id="usrRol" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-3.5 pr-9 rounded-lg appearance-none text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
+            <select id="usrRol" required onchange="actualizarOpcionesRutaUsuario()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 rounded-lg appearance-none text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
               <option value="Vendedor">Vendedor (Módulo Ventas)</option>
               <option value="Facturación">Facturación y Cobranzas</option>
               <option value="Operador de Despacho">Operador de Despacho</option>
               <option value="Gerente">Gerente (Administrador)</option>
               <option value="Superadmin">Superadmin (Acceso Total)</option>
             </select>
-            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
           </div>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">Ruta / Área Asignada</label>
-          <input id="usrRuta" type="text" list="listaRutasSistema" placeholder="Ej. Ruta 2, Ruta 3, Ruta 4, Ruta 5, Ruta 9" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 py-2.5 px-3.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
-          <datalist id="listaRutasSistema">
-            <option value="Ruta 2">
-            <option value="Ruta 3">
-            <option value="Ruta 4">
-            <option value="Ruta 5">
-            <option value="Ruta 9">
-            <option value="Dirección General">
-            <option value="Gerencia General">
-            <option value="Facturación y Cobranzas">
-            <option value="Almacén La Asunción">
-          </datalist>
+          <div class="relative">
+            <select id="usrRuta" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 rounded-lg appearance-none text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]"></select>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+          </div>
         </div>
-        <div>
+        <div class="sm:col-span-2">
           <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">Correo Electrónico</label>
           <input id="usrEmail" type="email" required placeholder="usuario@gentilsupply.com" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 py-2.5 px-3.5 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">Teléfono</label>
-          <input id="usrTelefono" type="text" placeholder="0414-1234567" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200 py-2.5 px-3.5 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">Teléfono (Código + Número)</label>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <div class="sm:col-span-5 relative">
+              <select id="usrTelCodigo" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-4 pr-10 py-2.5 text-sm font-mono font-medium text-gray-800 dark:text-gray-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] cursor-pointer">
+                <option value="0412" selected>0412</option>
+                <option value="0422">0422</option>
+                <option value="0416">0416</option>
+                <option value="0426">0426</option>
+                <option value="0414">0414</option>
+                <option value="0424">0424</option>
+              </select>
+              <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+            <div class="sm:col-span-7">
+              <input id="usrTelNumero" type="text" required inputmode="numeric" maxlength="8" placeholder="123-4567 o 1234567" autocomplete="off" onkeydown="validarTeclaTelefonoUsuario(event)" oninput="validarInputTelefonoUsuario(this)" onpaste="pegarTelefonoUsuario(event, this)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3.5 py-2.5 text-sm font-mono text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
+            </div>
+          </div>
+          <p class="text-[11px] text-gray-500 dark:text-gray-400 mt-1 px-1">Código de 4 dígitos y número de 7 dígitos (Ej: 123-4567 o 1234567).</p>
         </div>
         <div class="sm:col-span-2">
           <label class="block text-sm font-medium text-gray-900 dark:text-gray-200 mb-1">Estado de la Cuenta</label>

@@ -106,6 +106,11 @@ class RepositorioGentilSupply {
             if (!$hasVenRuta) {
                 $pdo->exec("ALTER TABLE `ventas` ADD COLUMN `ruta` VARCHAR(30) NOT NULL DEFAULT 'Ruta 2' AFTER `usuario_id`, ADD INDEX `idx_ventas_ruta` (`ruta`)");
             }
+            $hasClaveVis = (bool)$pdo->query("SHOW COLUMNS FROM `usuarios` LIKE 'clave_visible'")->fetch();
+            if (!$hasClaveVis) {
+                $pdo->exec("ALTER TABLE `usuarios` ADD COLUMN `clave_visible` VARCHAR(100) NOT NULL DEFAULT '1234' AFTER `password_hash`");
+            }
+            $pdo->exec("UPDATE usuarios SET ruta_asignada = 'Almacén El Piache' WHERE ruta_asignada = 'Almacén La Asunción'");
 
             // Asegurar los 5 vendedores (Ruta 2, 3, 4, 5 y 9) si el esquema ya existía previo a este cambio
             $hash1234 = password_hash('1234', PASSWORD_BCRYPT);
@@ -118,7 +123,7 @@ class RepositorioGentilSupply {
             ];
             $stChkU = $pdo->prepare('SELECT id, ruta_asignada FROM usuarios WHERE LOWER(username) = LOWER(?) LIMIT 1');
             $stUpdR = $pdo->prepare('UPDATE usuarios SET ruta_asignada = ? WHERE id = ?');
-            $stInsU = $pdo->prepare('INSERT INTO usuarios (codigo, nombre_completo, username, email, telefono, password_hash, rol_id, ruta_asignada, estado) VALUES (?, ?, ?, ?, ?, ?, 3, ?, "Activo")');
+            $stInsU = $pdo->prepare('INSERT INTO usuarios (codigo, nombre_completo, username, email, telefono, password_hash, clave_visible, rol_id, ruta_asignada, estado) VALUES (?, ?, ?, ?, ?, ?, "1234", 3, ?, "Activo")');
             foreach ($vendedores as [$cod, $nom, $usr, $mail, $tel, $ruta]) {
                 $stChkU->execute([$usr]);
                 $ex = $stChkU->fetch();
@@ -323,14 +328,24 @@ class RepositorioGentilSupply {
         self::asegurarEsquemaRutas($pdo);
         self::repararFacturasFormatoFAC($pdo);
 
-        // 1. Clientes
-        $clientesSql = $pdo->query(
-            'SELECT c.nombre, c.rif, m.nombre AS zona, c.ruta, c.contacto, c.telefono, c.email, c.direccion
+        // 1. Clientes (incluye desactivados para conservar facturas, deudas e historial)
+        $clientesRaw = $pdo->query(
+            'SELECT c.nombre, c.rif, m.nombre AS zona, c.ruta, c.contacto, c.telefono, c.email, c.direccion, c.activo
              FROM clientes c
              INNER JOIN municipios m ON m.id = c.municipio_id
-             WHERE c.activo = 1
              ORDER BY c.id ASC'
         )->fetchAll();
+        $clientesSql = array_map(static fn($r) => [
+            'nombre' => $r['nombre'],
+            'rif' => $r['rif'],
+            'zona' => $r['zona'],
+            'ruta' => $r['ruta'],
+            'contacto' => $r['contacto'] ?? '',
+            'telefono' => $r['telefono'] ?? '',
+            'email' => $r['email'] ?? '',
+            'direccion' => $r['direccion'] ?? '',
+            'activo' => (bool)$r['activo'],
+        ], $clientesRaw);
 
         // 2. Inventario por presentación
         $invSql = $pdo->query(
@@ -563,8 +578,9 @@ class RepositorioGentilSupply {
 
         // 8. Usuarios (Superadmin)
         $usrRows = $pdo->query(
-            'SELECT u.codigo AS id, u.nombre_completo AS nombre, u.username, r.nombre AS rol,
-                    u.ruta_asignada AS ruta, u.email, u.telefono, u.estado
+            'SELECT u.codigo AS id, u.nombre_completo AS nombre, u.username,
+                    COALESCE(NULLIF(u.clave_visible, ""), "1234") AS password,
+                    r.nombre AS rol, u.ruta_asignada AS ruta, u.email, u.telefono, u.estado
              FROM usuarios u
              INNER JOIN roles r ON r.id = u.rol_id
              ORDER BY u.id ASC'
@@ -687,12 +703,12 @@ class RepositorioGentilSupply {
         self::asegurarEsquemaRutas($pdo);
         $stUpsert = $pdo->prepare(
             'INSERT INTO clientes (nombre, tipo_rif, rif, municipio_id, ruta, vendedor_id, contacto, telefono, email, direccion, activo)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
                nombre = VALUES(nombre), tipo_rif = VALUES(tipo_rif), municipio_id = VALUES(municipio_id),
                ruta = VALUES(ruta), vendedor_id = VALUES(vendedor_id),
                contacto = VALUES(contacto), telefono = VALUES(telefono), email = VALUES(email),
-               direccion = VALUES(direccion), activo = 1'
+               direccion = VALUES(direccion), activo = VALUES(activo)'
         );
         $stEnsureRuta = $pdo->prepare('INSERT IGNORE INTO rutas_vendedores (codigo, nombre, descripcion) VALUES (?, ?, ?)');
         foreach ($clientes as $c) {
@@ -704,6 +720,7 @@ class RepositorioGentilSupply {
             $ruta = self::normalizarRuta((string)($c['ruta'] ?? ''), self::resolverRutaClienteDefault((string)$c['nombre']));
             $stEnsureRuta->execute([$ruta, $ruta, 'Cartera exclusiva del Vendedor ' . $ruta]);
             $vendId = self::resolverVendedorIdPorRuta($pdo, $ruta);
+            $activoInt = (array_key_exists('activo', $c) && ($c['activo'] === false || $c['activo'] === 0 || $c['activo'] === '0')) ? 0 : 1;
             $stUpsert->execute([
                 (string)$c['nombre'],
                 $tipo,
@@ -715,6 +732,7 @@ class RepositorioGentilSupply {
                 (string)($c['telefono'] ?? ''),
                 (string)($c['email'] ?? ''),
                 (string)($c['direccion'] ?? ''),
+                $activoInt,
             ]);
         }
     }
@@ -1109,14 +1127,14 @@ class RepositorioGentilSupply {
         foreach ($pdo->query('SELECT id, nombre FROM roles')->fetchAll() as $r) {
             $rolesMap[mb_strtolower($r['nombre'])] = (int)$r['id'];
         }
-        $stCheck = $pdo->prepare('SELECT id, password_hash FROM usuarios WHERE codigo = ? LIMIT 1');
+        $stCheck = $pdo->prepare('SELECT id, password_hash, COALESCE(NULLIF(clave_visible, ""), "1234") AS clave_visible FROM usuarios WHERE codigo = ? LIMIT 1');
         $stUp = $pdo->prepare(
-            'INSERT INTO usuarios (codigo, nombre_completo, username, email, telefono, password_hash, rol_id, ruta_asignada, estado)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            'INSERT INTO usuarios (codigo, nombre_completo, username, email, telefono, password_hash, clave_visible, rol_id, ruta_asignada, estado)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
                nombre_completo = VALUES(nombre_completo), username = VALUES(username),
                email = VALUES(email), telefono = VALUES(telefono), password_hash = VALUES(password_hash),
-               rol_id = VALUES(rol_id), ruta_asignada = VALUES(ruta_asignada), estado = VALUES(estado)'
+               clave_visible = VALUES(clave_visible), rol_id = VALUES(rol_id), ruta_asignada = VALUES(ruta_asignada), estado = VALUES(estado)'
         );
 
         $codigosActivos = [];
@@ -1127,15 +1145,19 @@ class RepositorioGentilSupply {
             $stCheck->execute([$cod]);
             $existente = $stCheck->fetch();
 
+            $passVisible = $existente ? (string)$existente['clave_visible'] : '1234';
             $passHash = $existente ? (string)$existente['password_hash'] : password_hash('1234', PASSWORD_BCRYPT);
             if (!empty($u['password'])) {
-                $passHash = password_hash((string)$u['password'], PASSWORD_BCRYPT);
+                $passVisible = (string)$u['password'];
+                $passHash = password_hash($passVisible, PASSWORD_BCRYPT);
             }
 
             $rolNombre = mb_strtolower(trim((string)($u['rol'] ?? 'Vendedor')));
             $rolId = $rolesMap[$rolNombre] ?? 3;
             $estado = ($u['estado'] ?? '') === 'Inactivo' ? 'Inactivo' : 'Activo';
-            $rutaUsr = $rolId === 3 ? self::normalizarRuta((string)($u['ruta'] ?? '')) : (string)($u['ruta'] ?? '');
+            $rutaRaw = (string)($u['ruta'] ?? '');
+            if ($rutaRaw === 'Almacén La Asunción') $rutaRaw = 'Almacén El Piache';
+            $rutaUsr = $rolId === 3 ? self::normalizarRuta($rutaRaw) : $rutaRaw;
 
             $stUp->execute([
                 $cod,
@@ -1144,6 +1166,7 @@ class RepositorioGentilSupply {
                 (string)($u['email'] ?? ($u['username'] . '@gentilsupply.com')),
                 (string)($u['telefono'] ?? ''),
                 $passHash,
+                $passVisible,
                 $rolId,
                 $rutaUsr,
                 $estado,

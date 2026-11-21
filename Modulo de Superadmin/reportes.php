@@ -176,29 +176,38 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Cliente</label>
-          <select id="filtroClienteReporte" onchange="renderReportes()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-3 px-3 rounded-lg text-sm">
-            <option value="todos">Todos los Clientes</option>
-          </select>
+          <div class="relative">
+            <select id="filtroClienteReporte" onchange="renderReportes()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm cursor-pointer">
+              <option value="todos">Todos los Clientes</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+          </div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Estado Factura</label>
-          <select id="filtroEstadoReporte" onchange="renderReportes()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-3 px-3 rounded-lg text-sm">
-            <option value="activas">Todas las Vigentes</option>
-            <option value="emitidas">Facturas Emitidas</option>
-            <option value="completadas">Pagadas / Completadas</option>
-            <option value="pendientes">Pendientes</option>
-            <option value="sin_facturar">Sin Facturar</option>
-            <option value="anuladas">Anuladas</option>
-          </select>
+          <div class="relative">
+            <select id="filtroEstadoReporte" onchange="renderReportes()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm cursor-pointer">
+              <option value="activas">Todas las Vigentes</option>
+              <option value="emitidas">Facturas Emitidas</option>
+              <option value="completadas">Pagadas / Completadas</option>
+              <option value="pendientes">Pendientes</option>
+              <option value="sin_facturar">Sin Facturar</option>
+              <option value="anuladas">Anuladas</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+          </div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Línea</label>
-          <select id="filtroMarcaReporte" onchange="renderReportes()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-3 px-3 rounded-lg text-sm">
-            <option value="todas">Todas</option>
-            <option value="muchy">Muchy</option>
-            <option value="puig">Galleterías PUIG</option>
-            <option value="fisa">Fisa</option>
-          </select>
+          <div class="relative">
+            <select id="filtroMarcaReporte" onchange="renderReportes()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm cursor-pointer">
+              <option value="todas">Todas</option>
+              <option value="muchy">Muchy</option>
+              <option value="puig">Galleterías PUIG</option>
+              <option value="fisa">Fisa</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <div>

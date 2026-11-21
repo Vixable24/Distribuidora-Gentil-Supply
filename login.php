@@ -200,7 +200,7 @@
       { id: 'USR-002', nombre: 'Carlos Eduardo Gentil', username: 'gerente', password: '1234', rol: 'Gerente', ruta: 'Gerencia General', email: 'gerencia@gentilsupply.com', estado: 'Activo' },
       { id: 'USR-003', nombre: 'Vendedor Ruta 2', username: 'ruta2', password: '1234', rol: 'Vendedor', ruta: 'Ruta 2', email: 'ruta2@gentilsupply.com', estado: 'Activo' },
       { id: 'USR-004', nombre: 'Mariana Salazar', username: 'facturacion', password: '1234', rol: 'Facturación', ruta: 'Facturación y Cobranzas', email: 'facturacion@gentilsupply.com', estado: 'Activo' },
-      { id: 'USR-005', nombre: 'José Rodríguez', username: 'despacho', password: '1234', rol: 'Operador de Despacho', ruta: 'Almacén La Asunción', email: 'despacho@gentilsupply.com', estado: 'Activo' },
+      { id: 'USR-005', nombre: 'José Rodríguez', username: 'despacho', password: '1234', rol: 'Operador de Despacho', ruta: 'Almacén El Piache', email: 'despacho@gentilsupply.com', estado: 'Activo' },
       { id: 'USR-006', nombre: 'Vendedor Ruta 3', username: 'ruta3', password: '1234', rol: 'Vendedor', ruta: 'Ruta 3', email: 'ruta3@gentilsupply.com', estado: 'Activo' },
       { id: 'USR-007', nombre: 'Vendedor Ruta 4', username: 'ruta4', password: '1234', rol: 'Vendedor', ruta: 'Ruta 4', email: 'ruta4@gentilsupply.com', estado: 'Activo' },
       { id: 'USR-008', nombre: 'Vendedor Ruta 5', username: 'ruta5', password: '1234', rol: 'Vendedor', ruta: 'Ruta 5', email: 'ruta5@gentilsupply.com', estado: 'Activo' },
@@ -373,7 +373,7 @@
           const btn = document.getElementById('btnReanudarSesion');
           if (box && txt && sub && btn) {
             txt.textContent = `Sesión iniciada: ${ses.nombre || ses.username}`;
-            sub.textContent = `@${ses.username} · Rol: ${ses.rol}`;
+            sub.textContent = `Usuario: ${ses.username} · Rol: ${ses.rol}`;
             btn.onclick = () => {
               window.location.href = ses.moduloInicio || obtenerModuloDestinoPorRol(ses.rol);
             };

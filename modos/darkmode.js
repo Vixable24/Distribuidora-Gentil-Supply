@@ -71,7 +71,7 @@ const USUARIOS_SEMILLA_GLOBAL = [
   { id: 'USR-002', nombre: 'Carlos Eduardo Gentil', username: 'gerente', password: '1234', rol: 'Gerente', ruta: 'Gerencia General', email: 'gerencia@gentilsupply.com', telefono: '0414-7900002', estado: 'Activo' },
   { id: 'USR-003', nombre: 'Vendedor Ruta 2', username: 'ruta2', password: '1234', rol: 'Vendedor', ruta: 'Ruta 2', email: 'ruta2@gentilsupply.com', telefono: '0412-3548810', estado: 'Activo' },
   { id: 'USR-004', nombre: 'Mariana Salazar', username: 'facturacion', password: '1234', rol: 'Facturación', ruta: 'Facturación y Cobranzas', email: 'facturacion@gentilsupply.com', telefono: '0424-8812200', estado: 'Activo' },
-  { id: 'USR-005', nombre: 'José Rodríguez', username: 'despacho', password: '1234', rol: 'Operador de Despacho', ruta: 'Almacén La Asunción', email: 'despacho@gentilsupply.com', telefono: '0416-6950099', estado: 'Activo' },
+  { id: 'USR-005', nombre: 'José Rodríguez', username: 'despacho', password: '1234', rol: 'Operador de Despacho', ruta: 'Almacén El Piache', email: 'despacho@gentilsupply.com', telefono: '0416-6950099', estado: 'Activo' },
   { id: 'USR-006', nombre: 'Vendedor Ruta 3', username: 'ruta3', password: '1234', rol: 'Vendedor', ruta: 'Ruta 3', email: 'ruta3@gentilsupply.com', telefono: '0412-3548813', estado: 'Activo' },
   { id: 'USR-007', nombre: 'Vendedor Ruta 4', username: 'ruta4', password: '1234', rol: 'Vendedor', ruta: 'Ruta 4', email: 'ruta4@gentilsupply.com', telefono: '0414-3548814', estado: 'Activo' },
   { id: 'USR-008', nombre: 'Vendedor Ruta 5', username: 'ruta5', password: '1234', rol: 'Vendedor', ruta: 'Ruta 5', email: 'ruta5@gentilsupply.com', telefono: '0416-3548815', estado: 'Activo' },
@@ -186,22 +186,23 @@ function normalizarListaFacturasFAC(lista, _origSet) {
           if (!c || typeof c !== 'object') return c;
           const rutaMap = CLIENTES_RUTA_DEFAULT_MAP[c.nombre];
           const rutaActual = c.ruta ? normalizarRutaSistema(c.ruta) : (rutaMap || 'Ruta 2');
-          if (c.ruta !== rutaActual) {
+          const activoActual = c.activo !== false && c.activo !== 0 && c.activo !== '0';
+          if (c.ruta !== rutaActual || c.activo !== activoActual) {
             modC = true;
-            return Object.assign({}, c, { ruta: rutaActual });
+            return Object.assign({}, c, { ruta: rutaActual, activo: activoActual });
           }
           return c;
         });
         CLIENTES_SEMILLA_GLOBAL.forEach(seed => {
           if (!normC.some(x => x && (x.nombre === seed.nombre || x.rif === seed.rif))) {
-            normC.push(Object.assign({}, seed));
+            normC.push(Object.assign({}, seed, { activo: true }));
             modC = true;
           }
         });
         if (modC) _origSetItem.call(localStorage, 'gs_clientes_v1', JSON.stringify(normC));
       }
     } else {
-      _origSetItem.call(localStorage, 'gs_clientes_v1', JSON.stringify(CLIENTES_SEMILLA_GLOBAL));
+      _origSetItem.call(localStorage, 'gs_clientes_v1', JSON.stringify(CLIENTES_SEMILLA_GLOBAL.map(s => Object.assign({}, s, { activo: true }))));
     }
 
     const rawUsr = localStorage.getItem('gs_usuarios_v1');
@@ -211,14 +212,25 @@ function normalizarListaFacturasFAC(lista, _origSet) {
         let modU = false;
         const normU = parsedU.map(u => {
           if (!u || typeof u !== 'object') return u;
+          let cambiado = false;
+          let nuevoObj = Object.assign({}, u);
           if (u.rol === 'Vendedor') {
             const rutaNorm = normalizarRutaSistema(u.ruta || u.username);
             if (u.ruta !== rutaNorm) {
-              modU = true;
-              return Object.assign({}, u, { ruta: rutaNorm });
+              nuevoObj.ruta = rutaNorm;
+              cambiado = true;
             }
+          } else if (u.ruta === 'Almacén La Asunción') {
+            nuevoObj.ruta = 'Almacén El Piache';
+            cambiado = true;
           }
-          return u;
+          if (!u.password) {
+            const matchSeed = USUARIOS_SEMILLA_GLOBAL.find(s => String(s.username).toLowerCase() === String(u.username || '').toLowerCase());
+            nuevoObj.password = matchSeed ? matchSeed.password : '1234';
+            cambiado = true;
+          }
+          if (cambiado) modU = true;
+          return cambiado ? nuevoObj : u;
         });
         USUARIOS_SEMILLA_GLOBAL.forEach(seedU => {
           if (!normU.some(x => x && String(x.username || '').toLowerCase() === seedU.username.toLowerCase())) {
@@ -477,6 +489,54 @@ function initEstilosSistemaUI() {
     table.datagrid-compacto tbody td a {
       font-size: 0.7rem !important;
     }
+
+    /* Desplegables unificados en todo el sistema estilo Rastreo por Municipios ("Todos los Municipios") */
+    select:not(#selectorRutaActivaVentas) {
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
+      appearance: none !important;
+      background-color: #f9fafb !important;
+      border: 1px solid #e5e7eb !important;
+      color: #374151 !important;
+      border-radius: 0.5rem !important;
+      font-size: 0.875rem !important;
+      line-height: 1.25rem !important;
+      padding: 0.625rem 2.5rem 0.625rem 1rem !important;
+      cursor: pointer;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    select:not(#selectorRutaActivaVentas):focus {
+      outline: none !important;
+      border-color: #1c4d37 !important;
+      box-shadow: 0 0 0 2px rgba(28, 77, 55, 0.2) !important;
+    }
+    html.dark select:not(#selectorRutaActivaVentas) {
+      background-color: #111827 !important;
+      border-color: #374151 !important;
+      color: #e5e7eb !important;
+    }
+    html.dark select:not(#selectorRutaActivaVentas) option {
+      background-color: #111827;
+      color: #f3f4f6;
+    }
+    select#selectorRutaActivaVentas {
+      -webkit-appearance: none !important;
+      -moz-appearance: none !important;
+      appearance: none !important;
+      background-color: #f9fafb !important;
+      border: 1px solid #e5e7eb !important;
+      color: #1c4d37 !important;
+      border-radius: 0.5rem !important;
+      padding: 0.25rem 2rem 0.25rem 0.75rem !important;
+      font-size: 0.875rem !important;
+      font-weight: 700 !important;
+      cursor: pointer;
+    }
+    html.dark select#selectorRutaActivaVentas {
+      background-color: #111827 !important;
+      border-color: #374151 !important;
+      color: #34d399 !important;
+    }
   `;
   (document.head || document.documentElement).appendChild(style);
 }
@@ -561,12 +621,41 @@ window.addEventListener('afterprint', () => {
   }
 });
 
+function initSaludoRolModulo() {
+  const pathActual = decodeURIComponent(window.location.pathname || '');
+  if (!/Modulo de /i.test(pathActual) || pathActual.includes('Modulo de Ventas')) return;
+
+  let rolDefecto = 'Administrador';
+  if (pathActual.includes('Modulo de facturacion')) rolDefecto = 'Facturación';
+  else if (pathActual.includes('Modulo de Despacho')) rolDefecto = 'Operador de Despacho';
+  else if (pathActual.includes('Modulo de Administrador')) rolDefecto = 'Gerente';
+  else if (pathActual.includes('Modulo de Superadmin')) rolDefecto = 'Superadmin';
+
+  let rolActivo = rolDefecto;
+  try {
+    const ses = JSON.parse(localStorage.getItem('gs_sesion_activa'));
+    if (ses && ses.rol) rolActivo = ses.rol;
+  } catch (e) {}
+
+  document.querySelectorAll('.nombreRolModulo').forEach(el => {
+    el.textContent = rolActivo;
+  });
+
+  if (pathActual.includes('Modulo de facturacion')) {
+    const sideUser = document.querySelector('aside p.font-semibold.text-sm.text-white');
+    if (sideUser && sideUser.textContent.trim() === 'Admin') {
+      sideUser.textContent = rolActivo;
+    }
+  }
+}
+
 // Inicializar el estado al cargar cualquier página
 document.addEventListener('DOMContentLoaded', () => {
   aplicarTemaInmediato();
   initEstilosSistemaUI();
   initConectorBCV();
   initLogoModuloSuperior();
+  initSaludoRolModulo();
   initBotonRetornoAdmin();
   sincronizarGraficasYTextoTema();
   requestAnimationFrame(() => {

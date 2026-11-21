@@ -131,10 +131,14 @@
         <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white">Panel de Superadministrador</h2>
         <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Control global del sistema, gestión de usuarios y supervisión gerencial completa.</p>
       </div>
-      <div class="flex flex-wrap items-center gap-3 self-start md:self-auto">
-        <a href="usuarios.php" class="bg-[#1c4d37] hover:bg-[#133928] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-medium px-5 py-3 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
-          <i data-lucide="user-plus" class="w-4 h-4"></i> Gestionar Usuarios
-        </a>
+      <div class="flex items-center gap-3 bg-white dark:bg-gray-800 px-4 py-2.5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 self-start md:self-auto">
+        <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-700/60 flex items-center justify-center text-[#1c4d37] dark:text-emerald-400">
+          <i data-lucide="user-check" class="w-5 h-5"></i>
+        </div>
+        <div class="leading-tight">
+          <p class="text-[11px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Sesión Activa</p>
+          <p id="saludoUsuarioDashboard" class="text-sm font-bold text-[#1c4d37] dark:text-emerald-400">Bienvenido, <span class="nombreRolModulo">Superadmin</span></p>
+        </div>
       </div>
     </div>
 

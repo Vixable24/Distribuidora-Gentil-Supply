@@ -123,7 +123,7 @@
         </div>
         <div class="leading-tight">
           <p class="text-[11px] uppercase tracking-wider font-semibold text-gray-400 dark:text-gray-500">Sesión Activa</p>
-          <p id="saludoUsuarioDashboard" class="text-sm font-bold text-[#1c4d37] dark:text-emerald-400">Bienvenido, <span id="nombreRutaActiva">Ruta 2</span></p>
+          <p id="saludoUsuarioDashboard" class="text-sm font-bold text-[#1c4d37] dark:text-emerald-400">Bienvenido, <span class="nombreRolModulo">Operador de Despacho</span></p>
         </div>
       </div>
     </div>
