@@ -1,11 +1,11 @@
 {
     "ok": true,
-    "tasa": 917.78,
-    "tasaExacta": 917.7751,
+    "tasa": 918.77,
+    "tasaExacta": 918.7662,
     "fuente": "BCV Oficial (dolarapi)",
-    "fechaValor": "2026-11-19",
-    "diaVerificado": "2026-11-19",
-    "actualizado": "2026-11-19T19:04:48-04:00",
-    "timestamp": 1795129488,
+    "fechaValor": "2026-11-20",
+    "diaVerificado": "2026-11-23",
+    "actualizado": "2026-11-23T09:51:33-04:00",
+    "timestamp": 1795441893,
     "desdeCache": false
 }
