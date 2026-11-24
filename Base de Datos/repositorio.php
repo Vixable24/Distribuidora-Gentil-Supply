@@ -110,6 +110,10 @@ class RepositorioGentilSupply {
             if (!$hasClaveVis) {
                 $pdo->exec("ALTER TABLE `usuarios` ADD COLUMN `clave_visible` VARCHAR(100) NOT NULL DEFAULT '1234' AFTER `password_hash`");
             }
+            $hasMotivoBloq = (bool)$pdo->query("SHOW COLUMNS FROM `clientes` LIKE 'motivo_bloqueo'")->fetch();
+            if (!$hasMotivoBloq) {
+                $pdo->exec("ALTER TABLE `clientes` ADD COLUMN `motivo_bloqueo` VARCHAR(255) DEFAULT NULL AFTER `activo`");
+            }
             $pdo->exec("UPDATE usuarios SET ruta_asignada = 'Almacén El Piache' WHERE ruta_asignada = 'Almacén La Asunción'");
 
             // Asegurar los 5 vendedores (Ruta 2, 3, 4, 5 y 9) si el esquema ya existía previo a este cambio
@@ -330,7 +334,7 @@ class RepositorioGentilSupply {
 
         // 1. Clientes (incluye desactivados para conservar facturas, deudas e historial)
         $clientesRaw = $pdo->query(
-            'SELECT c.nombre, c.rif, m.nombre AS zona, c.ruta, c.contacto, c.telefono, c.email, c.direccion, c.activo
+            'SELECT c.nombre, c.rif, m.nombre AS zona, c.ruta, c.contacto, c.telefono, c.email, c.direccion, c.activo, c.motivo_bloqueo
              FROM clientes c
              INNER JOIN municipios m ON m.id = c.municipio_id
              ORDER BY c.id ASC'
@@ -345,6 +349,7 @@ class RepositorioGentilSupply {
             'email' => $r['email'] ?? '',
             'direccion' => $r['direccion'] ?? '',
             'activo' => (bool)$r['activo'],
+            'motivoBloqueo' => (string)($r['motivo_bloqueo'] ?? ''),
         ], $clientesRaw);
 
         // 2. Inventario por presentación
@@ -587,14 +592,23 @@ class RepositorioGentilSupply {
         )->fetchAll();
 
         // 9. Tasa BCV más reciente
+        date_default_timezone_set('America/Caracas');
+        $hoyCaracas = date('Y-m-d');
         $tasaRow = $pdo->query('SELECT fecha_valor, tasa_usd_bs, tasa_exacta, fecha_bcv_texto, consultado_el, verificacion_dia, fuente FROM tasas_bcv ORDER BY fecha_valor DESC, id DESC LIMIT 1')->fetch();
         $tasaValor = $tasaRow ? (float)$tasaRow['tasa_usd_bs'] : 60.50;
+        $fechaValRow = $tasaRow ? ($tasaRow['fecha_bcv_texto'] ?: $tasaRow['fecha_valor']) : $hoyCaracas;
+        $verifDiaRow = $tasaRow ? ($tasaRow['verificacion_dia'] ?: $tasaRow['fecha_valor']) : '';
+        $consultadoRow = $tasaRow ? ($tasaRow['consultado_el'] ?: date('c')) : date('c');
         $tasaMeta = $tasaRow ? [
             'tasa' => (float)$tasaRow['tasa_usd_bs'],
             'tasaExacta' => (float)$tasaRow['tasa_exacta'],
-            'fechaBCV' => $tasaRow['fecha_bcv_texto'] ?: $tasaRow['fecha_valor'],
-            'consultadoEl' => $tasaRow['consultado_el'] ?: date('c'),
-            'verificacionDia' => $tasaRow['verificacion_dia'] ?: $tasaRow['fecha_valor'],
+            'fechaValor' => $fechaValRow,
+            'fechaBCV' => $fechaValRow,
+            'actualizado' => $consultadoRow,
+            'consultadoEl' => $consultadoRow,
+            'diaVerificado' => $verifDiaRow,
+            'verificacionDia' => $verifDiaRow,
+            'acordeAlDia' => ($fechaValRow >= $hoyCaracas),
             'fuente' => $tasaRow['fuente'],
         ] : null;
 
@@ -618,6 +632,7 @@ class RepositorioGentilSupply {
      */
     public static function sincronizarClave(PDO $pdo, string $key, mixed $value): array {
         if ($key === 'gs_tasa_bcv') {
+            date_default_timezone_set('America/Caracas');
             $tasa = round((float)$value, 2);
             if ($tasa <= 0) return ['ok' => false, 'mensaje' => 'Tasa BCV inválida'];
             $hoy = date('Y-m-d');
@@ -632,11 +647,14 @@ class RepositorioGentilSupply {
         }
 
         if ($key === 'gs_tasa_bcv_meta' && is_array($value)) {
+            date_default_timezone_set('America/Caracas');
             $tasa = round((float)($value['tasa'] ?? 0), 2);
             if ($tasa <= 0) return ['ok' => false, 'mensaje' => 'Metadatos BCV inválidos'];
             $exacta = (float)($value['tasaExacta'] ?? $tasa);
-            $hoy = $value['verificacionDia'] ?? date('Y-m-d');
-            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$hoy)) $hoy = date('Y-m-d');
+            $hoy = (string)($value['diaVerificado'] ?? $value['verificacionDia'] ?? date('Y-m-d'));
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $hoy)) $hoy = date('Y-m-d');
+            $fechaBCV = (string)($value['fechaValor'] ?? $value['fechaBCV'] ?? $hoy);
+            $consultadoEl = (string)($value['actualizado'] ?? $value['consultadoEl'] ?? date('c'));
             $st = $pdo->prepare(
                 'INSERT INTO tasas_bcv (fecha_valor, tasa_usd_bs, tasa_exacta, fecha_bcv_texto, consultado_el, verificacion_dia, fuente)
                  VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -648,8 +666,8 @@ class RepositorioGentilSupply {
                 $hoy,
                 $tasa,
                 $exacta,
-                (string)($value['fechaBCV'] ?? $hoy),
-                (string)($value['consultadoEl'] ?? date('c')),
+                $fechaBCV,
+                $consultadoEl,
                 $hoy,
                 (string)($value['fuente'] ?? 'https://www.bcv.org.ve/'),
             ]);
@@ -702,13 +720,13 @@ class RepositorioGentilSupply {
     private static function syncClientes(PDO $pdo, array $clientes): void {
         self::asegurarEsquemaRutas($pdo);
         $stUpsert = $pdo->prepare(
-            'INSERT INTO clientes (nombre, tipo_rif, rif, municipio_id, ruta, vendedor_id, contacto, telefono, email, direccion, activo)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            'INSERT INTO clientes (nombre, tipo_rif, rif, municipio_id, ruta, vendedor_id, contacto, telefono, email, direccion, activo, motivo_bloqueo)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE
                nombre = VALUES(nombre), tipo_rif = VALUES(tipo_rif), municipio_id = VALUES(municipio_id),
                ruta = VALUES(ruta), vendedor_id = VALUES(vendedor_id),
                contacto = VALUES(contacto), telefono = VALUES(telefono), email = VALUES(email),
-               direccion = VALUES(direccion), activo = VALUES(activo)'
+               direccion = VALUES(direccion), activo = VALUES(activo), motivo_bloqueo = VALUES(motivo_bloqueo)'
         );
         $stEnsureRuta = $pdo->prepare('INSERT IGNORE INTO rutas_vendedores (codigo, nombre, descripcion) VALUES (?, ?, ?)');
         foreach ($clientes as $c) {
@@ -721,6 +739,8 @@ class RepositorioGentilSupply {
             $stEnsureRuta->execute([$ruta, $ruta, 'Cartera exclusiva del Vendedor ' . $ruta]);
             $vendId = self::resolverVendedorIdPorRuta($pdo, $ruta);
             $activoInt = (array_key_exists('activo', $c) && ($c['activo'] === false || $c['activo'] === 0 || $c['activo'] === '0')) ? 0 : 1;
+            $motivoBloqueo = $activoInt === 0 ? trim((string)($c['motivoBloqueo'] ?? '')) : null;
+            if ($motivoBloqueo === '') $motivoBloqueo = null;
             $stUpsert->execute([
                 (string)$c['nombre'],
                 $tipo,
@@ -733,6 +753,7 @@ class RepositorioGentilSupply {
                 (string)($c['email'] ?? ''),
                 (string)($c['direccion'] ?? ''),
                 $activoInt,
+                $motivoBloqueo,
             ]);
         }
     }
@@ -1179,5 +1200,57 @@ class RepositorioGentilSupply {
             $stDel = $pdo->prepare("DELETE FROM usuarios WHERE codigo NOT IN ($placeholders)");
             $stDel->execute($codigosActivos);
         }
+    }
+
+    /**
+     * Genera un respaldo SQL completo de la base de datos (desde MySQL activo o desde gentil_supply.sql).
+     */
+    public static function exportarRespaldoSQL(?PDO $pdo): string {
+        date_default_timezone_set('America/Caracas');
+        $fechaExport = date('Y-m-d H:i:s');
+        $encabezado = "-- =============================================================================\n"
+            . "-- Respaldo Oficial de Base de Datos - Distribuidora Gentil Supply, C.A.\n"
+            . "-- Generado el: {$fechaExport} (America/Caracas)\n"
+            . "-- =============================================================================\n\n"
+            . "SET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS = 0;\n\n";
+
+        if ($pdo instanceof PDO) {
+            try {
+                self::asegurarEsquemaRutas($pdo);
+                $tablas = $pdo->query("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'")->fetchAll(PDO::FETCH_NUM);
+                $out = $encabezado . "CREATE DATABASE IF NOT EXISTS `gentil_supply` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\nUSE `gentil_supply`;\n\n";
+                foreach ($tablas as $tRow) {
+                    $tabla = (string)$tRow[0];
+                    $createRow = $pdo->query("SHOW CREATE TABLE `{$tabla}`")->fetch(PDO::FETCH_NUM);
+                    if ($createRow && isset($createRow[1])) {
+                        $out .= "DROP TABLE IF EXISTS `{$tabla}`;\n" . $createRow[1] . ";\n\n";
+                    }
+                    $filas = $pdo->query("SELECT * FROM `{$tabla}`")->fetchAll(PDO::FETCH_ASSOC);
+                    if (count($filas) > 0) {
+                        $cols = array_map(static fn($c) => "`{$c}`", array_keys($filas[0]));
+                        $out .= "INSERT INTO `{$tabla}` (" . implode(', ', $cols) . ") VALUES\n";
+                        $lineasVal = [];
+                        foreach ($filas as $f) {
+                            $vals = [];
+                            foreach ($f as $v) {
+                                $vals[] = $v === null ? 'NULL' : $pdo->quote((string)$v);
+                            }
+                            $lineasVal[] = '(' . implode(', ', $vals) . ')';
+                        }
+                        $out .= implode(",\n", $lineasVal) . ";\n\n";
+                    }
+                }
+                $out .= "SET FOREIGN_KEY_CHECKS = 1;\n";
+                return $out;
+            } catch (Throwable $e) {
+                // Continuar al archivo base gentil_supply.sql si ocurre algún error
+            }
+        }
+
+        $sqlBase = __DIR__ . '/gentil_supply.sql';
+        if (file_exists($sqlBase)) {
+            return $encabezado . (string)file_get_contents($sqlBase);
+        }
+        return $encabezado . "SET FOREIGN_KEY_CHECKS = 1;\n";
     }
 }

@@ -116,20 +116,20 @@
 
   <!-- CONTENIDO PRINCIPAL: ANULACIONES -->
   <main class="flex-1 overflow-y-auto p-8">
-    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <div data-logo-modulo="true" class="inline-flex items-center gap-2 px-3 py-1.5 mb-2.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
-          <div class="w-6 h-6 rounded-lg bg-[#1c4d37] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
-            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
-          </div>
-          <span class="text-xs font-bold tracking-wide text-[#1c4d37] dark:text-emerald-400">Gentil Supply · Módulo de Facturación</span>
+    <div class="mb-6 w-full">
+      <div data-logo-modulo="true" class="inline-flex items-center gap-2 px-3 py-1.5 mb-2.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
+        <div class="w-6 h-6 rounded-lg bg-[#1c4d37] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+          <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
         </div>
-        <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white">Módulo de Anulación de Facturas</h2>
-        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Control de comprobantes anulados con justificación obligatoria, basado en las ventas.</p>
+        <span class="text-xs font-bold tracking-wide text-[#1c4d37] dark:text-emerald-400">Gentil Supply · Módulo de Facturación</span>
       </div>
-      <button onclick="abrirSolicitudAnulacion()" class="bg-red-600 hover:bg-red-700 text-white font-medium px-5 py-3 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
-        <i data-lucide="ban" class="w-5 h-5"></i> Solicitar Anulación
-      </button>
+      <div class="w-full flex flex-wrap items-center justify-between gap-4">
+        <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white leading-tight">Módulo de Anulación de Facturas</h2>
+        <button onclick="abrirSolicitudAnulacion()" class="bg-red-600 hover:bg-red-700 text-white font-medium px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
+          <i data-lucide="ban" class="w-4 h-4"></i> Solicitar Anulación
+        </button>
+      </div>
+      <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Control de comprobantes anulados con justificación obligatoria, basado en las ventas.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

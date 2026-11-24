@@ -556,7 +556,15 @@ function setVista(v) {
 function filtrarOrdenes() {
   const q = $('search') ? $('search').value.trim().toLowerCase() : '';
   const est = $('filterEstado') ? $('filterEstado').value : '';
-  const filtrada = ordenes.filter(o => (!est || o.estado === est) && (!q || (o.cliente + ' ' + o.rif + ' ' + o.id + ' ' + (o.facturaNumero || '') + ' ' + (o.ventaId || '')).toLowerCase().includes(q)));
+  const fecha = $('filterFecha') ? $('filterFecha').value : '';
+  if ($('btnLimpiarFechaDesp')) {
+    $('btnLimpiarFechaDesp').classList.toggle('hidden', !fecha);
+  }
+  const filtrada = ordenes.filter(o =>
+    (!est || o.estado === est) &&
+    (!fecha || String(o.fecha || '') === fecha) &&
+    (!q || (o.cliente + ' ' + o.rif + ' ' + o.id + ' ' + (o.facturaNumero || '') + ' ' + (o.ventaId || '')).toLowerCase().includes(q))
+  );
   const mult = ordenDespachos.dir === 'asc' ? 1 : -1;
   return [...filtrada].sort((a, b) => {
     const ca = (CONDUCTORES[a.cond] && CONDUCTORES[a.cond].n) || '';
@@ -571,6 +579,13 @@ function filtrarOrdenes() {
       default: return 0;
     }
   });
+}
+
+function limpiarFiltroFechaDespachos() {
+  if ($('filterFecha')) {
+    $('filterFecha').value = '';
+    renderOrdenes();
+  }
 }
 
 function btnAccion(color, icono, titulo, onclick, deshabilitado) {
@@ -707,19 +722,57 @@ function guardarIncidencia(e) {
   ordenes = cargarOrdenes();
   const o = ordenes.find(x => x.id === incidenciaActual);
   if (!o) return;
-  o.incidencia = {
-    tipo: document.querySelector('input[name=incTipo]:checked').value,
-    motivo: $('incMotivo').value,
-    desc: $('incDesc').value.trim(),
-    fecha: hoy,
-    resuelta: false
+  const tipo = document.querySelector('input[name=incTipo]:checked').value;
+  const motivo = $('incMotivo').value;
+  const desc = $('incDesc').value.trim();
+  const etiquetaTipo = tipo === 'cliente' ? 'Con el Cliente' : 'Equipo de Transporte';
+
+  const ejecutarIncidencia = () => {
+    ordenes = cargarOrdenes();
+    const ord = ordenes.find(x => x.id === incidenciaActual);
+    if (!ord) return;
+    ord.incidencia = {
+      tipo,
+      motivo,
+      desc,
+      fecha: hoy,
+      resuelta: false
+    };
+    sincronizarEstadoDespachoConVentaYFactura(ord, 'Con Incidencia');
+    guardarOrdenes();
+    if (typeof window.registrarLogSistema === 'function') {
+      window.registrarLogSistema({
+        modulo: 'Despacho',
+        accion: 'Incidencia de Despacho',
+        detalle: `Guía ${ord.id} (${ord.facturaNumero || 'Sin factura'}) marcada Con Incidencia · ${etiquetaTipo}: ${motivo} (${desc})`,
+        nivel: 'alerta'
+      });
+    }
+    closeModal('modalInc');
+    if ($('tbody')) renderOrdenes();
+    if ($('tbodyEstadoDespacho')) renderEstadoDespacho();
+    toast(`Incidencia registrada en la guía ${ord.id} (estado: Con Incidencia).`);
   };
-  sincronizarEstadoDespachoConVentaYFactura(o, 'Con Incidencia');
-  guardarOrdenes();
-  closeModal('modalInc');
-  if ($('tbody')) renderOrdenes();
-  if ($('tbodyEstadoDespacho')) renderEstadoDespacho();
-  toast(`Incidencia registrada en la guía ${o.id} (estado: Con Incidencia).`);
+
+  if (typeof window.confirmarAccionSistema === 'function') {
+    window.confirmarAccionSistema({
+      titulo: 'Confirmar Registro de Incidencia',
+      mensaje: `¿Confirmas asignar el estado "Con Incidencia" a la guía ${o.id}?`,
+      icono: 'alert-triangle',
+      variante: 'danger',
+      textoConfirmar: 'Registrar Incidencia',
+      detalleHtml: `
+        <div class="flex justify-between"><span class="text-gray-500">Guía / Factura:</span><span class="font-bold text-[#1c4d37] dark:text-emerald-400">${esc(o.id)}${o.facturaNumero ? ' · ' + esc(o.facturaNumero) : ''}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Cliente:</span><span class="font-semibold">${esc(o.cliente)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Origen:</span><span class="font-semibold text-red-600 dark:text-red-400">${esc(etiquetaTipo)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Motivo:</span><span class="font-semibold">${esc(motivo)}</span></div>
+        <div class="pt-1.5 border-t border-gray-200 dark:border-gray-700"><span class="text-gray-500 block text-xs">Descripción:</span><span class="text-xs font-medium">${esc(desc)}</span></div>
+      `,
+      onConfirm: ejecutarIncidencia
+    });
+  } else {
+    ejecutarIncidencia();
+  }
 }
 
 function verDetalle(id) {
@@ -759,10 +812,13 @@ function verDetalle(id) {
   $('printArea').innerHTML = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111827;font-size:12px;line-height:1.45">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1c4d37;padding-bottom:12px;margin-bottom:14px">
-        <div>
-          <div style="font-size:18px;font-weight:800;color:#1c4d37;letter-spacing:-0.01em">Distribuidora Gentil Supply, C.A.</div>
-          <div style="font-size:11px;color:#4b5563">La Asunción, Mpio. Arismendi, Estado Nueva Esparta</div>
-          <div style="font-size:11px;color:#4b5563">Control de Despacho y Logística</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <img src="../imagenes/logo_gs_verde.jpg" alt="Logo Gentil Supply" style="width:46px;height:46px;border-radius:10px;object-fit:cover;border:1px solid #1c4d37;flex-shrink:0">
+          <div>
+            <div style="font-size:18px;font-weight:800;color:#1c4d37;letter-spacing:-0.01em">Distribuidora Gentil Supply, C.A.</div>
+            <div style="font-size:11px;color:#4b5563">La Asunción, Mpio. Arismendi, Estado Nueva Esparta</div>
+            <div style="font-size:11px;color:#4b5563">Control de Despacho y Logística</div>
+          </div>
         </div>
         <div style="text-align:right">
           <div style="display:inline-block;padding:2px 8px;border-radius:6px;background:#ecfdf5;border:1px solid #a7f3d0;color:#1c4d37;font-size:10px;font-weight:800;letter-spacing:.06em;margin-bottom:4px">NOTA DE ENTREGA</div>
@@ -945,13 +1001,15 @@ function crearGuia(e) {
     const num = parseInt(String(o.id || '').replace(/\D+/g, ''), 10);
     return isNaN(num) ? m : Math.max(m, num);
   }, 100);
+  const condIdx = +$('gConductor').value;
+  const condObj = CONDUCTORES[condIdx] || CONDUCTORES[0];
   const nuevaOrden = {
     id: 'GS-' + String(maxNum + 1).padStart(5, '0'),
     facturaNumero: f.numero,
     ventaId: f.ventaId,
     cliente: $('gCliente').value,
     rif: $('gRif').value.toUpperCase(),
-    cond: +$('gConductor').value,
+    cond: condIdx,
     zona: $('gZona').value,
     fecha: $('gFecha').value || hoy,
     estado: 'En Preparación',
@@ -960,13 +1018,42 @@ function crearGuia(e) {
     stockDescontado: false
   };
 
-  ordenes.unshift(nuevaOrden);
-  sincronizarEstadoDespachoConVentaYFactura(nuevaOrden, 'En Preparación');
-  itemsGuiaTemporal = [];
-  guardarOrdenes();
-  closeModal('modalGuia');
-  renderOrdenes();
-  toast(`Guía ${nuevaOrden.id} asignada a la factura ${f.numero} (Estado: En Preparación).`);
+  const ejecutarCreacionGuia = () => {
+    ordenes.unshift(nuevaOrden);
+    sincronizarEstadoDespachoConVentaYFactura(nuevaOrden, 'En Preparación');
+    itemsGuiaTemporal = [];
+    guardarOrdenes();
+    if (typeof window.registrarLogSistema === 'function') {
+      window.registrarLogSistema({
+        modulo: 'Despacho',
+        accion: 'Nueva Guía de Carga',
+        detalle: `Guía ${nuevaOrden.id} creada para Factura ${f.numero} · Cliente: ${nuevaOrden.cliente} (${nuevaOrden.zona})`,
+        nivel: 'info'
+      });
+    }
+    closeModal('modalGuia');
+    renderOrdenes();
+    toast(`Guía ${nuevaOrden.id} asignada a la factura ${f.numero} (Estado: En Preparación).`);
+  };
+
+  if (typeof window.confirmarAccionSistema === 'function') {
+    window.confirmarAccionSistema({
+      titulo: 'Confirmar Nueva Guía de Carga',
+      mensaje: `¿Deseas generar la guía de carga ${nuevaOrden.id} para la factura ${f.numero}? La orden pasará a estado "En Preparación".`,
+      icono: 'truck',
+      textoConfirmar: 'Confirmar y Crear Guía',
+      detalleHtml: `
+        <div class="flex justify-between"><span class="text-gray-500">N° Guía / Factura:</span><span class="font-bold text-[#1c4d37] dark:text-emerald-400">${esc(nuevaOrden.id)} · ${esc(f.numero)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Cliente / RIF:</span><span class="font-semibold">${esc(nuevaOrden.cliente)} (${esc(nuevaOrden.rif)})</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Destino / Fecha:</span><span class="font-medium">${esc(nuevaOrden.zona)} · ${esc(nuevaOrden.fecha)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Conductor:</span><span class="font-medium">${esc(condObj ? condObj.n + ' (' + condObj.v + ')' : 'Asignado')}</span></div>
+        <div class="pt-1.5 border-t border-gray-200 dark:border-gray-700"><span class="text-gray-500 block text-xs">Mercancía:</span><span class="text-xs font-medium">${esc(nuevaOrden.items)}</span></div>
+      `,
+      onConfirm: ejecutarCreacionGuia
+    });
+  } else {
+    ejecutarCreacionGuia();
+  }
 }
 
 function initOrdenes() {
@@ -976,6 +1063,7 @@ function initOrdenes() {
   if ($('gFecha')) $('gFecha').value = hoy;
   if ($('search')) $('search').addEventListener('input', renderOrdenes);
   if ($('filterEstado')) $('filterEstado').addEventListener('change', renderOrdenes);
+  if ($('filterFecha')) $('filterFecha').addEventListener('change', renderOrdenes);
   ['modalGuia', 'modalInc', 'modalDet'].forEach(id => {
     const el = $(id);
     if (el) el.addEventListener('click', e => { if (e.target.id === id) closeModal(id); });
@@ -1018,39 +1106,103 @@ function cambiarEstadoDespachoOrden(id, nuevoEstado) {
   const orden = ordenes.find(x => x.id === id);
   if (!orden) return;
 
-  sincronizarEstadoDespachoConVentaYFactura(orden, nuevoEstado);
+  const ejecutarCambioEstado = () => {
+    ordenes = cargarOrdenes();
+    const ord = ordenes.find(x => x.id === id);
+    if (!ord) return;
 
-  // Al marcar Completo, descontar del inventario si aún no fue descontado
-  if (nuevoEstado === 'Completo' && Array.isArray(orden.lineasInv) && orden.lineasInv.length && !orden.stockDescontado) {
-    orden.lineasInv.forEach(linea => {
-      const itemInv = buscarItemInventario(linea.id);
-      if (itemInv) {
-        itemInv.stock = Math.max(0, itemInv.stock - linea.cantidad);
-      }
+    sincronizarEstadoDespachoConVentaYFactura(ord, nuevoEstado);
+
+    // Al marcar Completo, descontar del inventario si aún no fue descontado
+    if (nuevoEstado === 'Completo' && Array.isArray(ord.lineasInv) && ord.lineasInv.length && !ord.stockDescontado) {
+      ord.lineasInv.forEach(linea => {
+        const itemInv = buscarItemInventario(linea.id);
+        if (itemInv) {
+          itemInv.stock = Math.max(0, itemInv.stock - linea.cantidad);
+        }
+      });
+      ord.stockDescontado = true;
+      guardarInventario();
+    }
+
+    guardarOrdenes();
+    if (typeof window.registrarLogSistema === 'function') {
+      window.registrarLogSistema({
+        modulo: 'Despacho',
+        accion: `Estado de Despacho: ${nuevoEstado}`,
+        detalle: `Guía ${ord.id} (${ord.facturaNumero || 'Sin factura'}) marcada como ${nuevoEstado} · Cliente: ${ord.cliente}`,
+        nivel: 'info'
+      });
+    }
+    if ($('tbodyEstadoDespacho')) renderEstadoDespacho();
+    if ($('tbody')) renderOrdenes();
+    toast(`Guía ${ord.id} actualizada a "${nuevoEstado}" (reflejado en Ventas).`);
+  };
+
+  if (typeof window.confirmarAccionSistema === 'function') {
+    window.confirmarAccionSistema({
+      titulo: `Confirmar Estado de Despacho: ${nuevoEstado}`,
+      mensaje: `¿Confirmas marcar la guía ${orden.id} como "${nuevoEstado}"? Este cambio se reflejará en Ventas, Facturación e Inventario.`,
+      icono: 'check-circle',
+      textoConfirmar: `Confirmar ${nuevoEstado}`,
+      detalleHtml: `
+        <div class="flex justify-between"><span class="text-gray-500">Guía / Factura:</span><span class="font-bold text-[#1c4d37] dark:text-emerald-400">${esc(orden.id)}${orden.facturaNumero ? ' · ' + esc(orden.facturaNumero) : ''}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Cliente / RIF:</span><span class="font-semibold">${esc(orden.cliente)} (${esc(orden.rif)})</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Destino / Fecha:</span><span class="font-medium">${esc(orden.zona)} · ${esc(orden.fecha)}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Nuevo Estado:</span><span class="font-bold text-emerald-600">${esc(nuevoEstado)}</span></div>
+      `,
+      onConfirm: ejecutarCambioEstado
     });
-    orden.stockDescontado = true;
-    guardarInventario();
+  } else {
+    ejecutarCambioEstado();
   }
-
-  guardarOrdenes();
-  if ($('tbodyEstadoDespacho')) renderEstadoDespacho();
-  if ($('tbody')) renderOrdenes();
-  toast(`Guía ${orden.id} actualizada a "${nuevoEstado}" (reflejado en Ventas).`);
 }
 
 function marcarIncidenciaResuelta(id) {
   ordenes = cargarOrdenes();
   const o = ordenes.find(x => x.id === id);
   if (!o) return;
-  if (o.incidencia) {
-    o.incidencia.resuelta = true;
-    o.incidencia.fechaResolucion = hoy;
+
+  const ejecutarResolucion = () => {
+    ordenes = cargarOrdenes();
+    const ord = ordenes.find(x => x.id === id);
+    if (!ord) return;
+    if (ord.incidencia) {
+      ord.incidencia.resuelta = true;
+      ord.incidencia.fechaResolucion = hoy;
+    }
+    sincronizarEstadoDespachoConVentaYFactura(ord, 'En Preparación');
+    guardarOrdenes();
+    if (typeof window.registrarLogSistema === 'function') {
+      window.registrarLogSistema({
+        modulo: 'Despacho',
+        accion: 'Incidencia Resuelta',
+        detalle: `Incidencia resuelta en Guía ${ord.id} (${ord.facturaNumero || ''}) · Regresó a En Preparación`,
+        nivel: 'info'
+      });
+    }
+    if ($('tbodyEstadoDespacho')) renderEstadoDespacho();
+    if ($('tbody')) renderOrdenes();
+    toast(`Incidencia de ${ord.id} marcada como resuelta. La orden volvió a "En Preparación".`);
+  };
+
+  if (typeof window.confirmarAccionSistema === 'function') {
+    window.confirmarAccionSistema({
+      titulo: 'Confirmar Resolución de Incidencia',
+      mensaje: `¿Confirmas que la incidencia de la guía ${o.id} fue solucionada? La orden volverá al estado "En Preparación".`,
+      icono: 'check',
+      variante: 'warning',
+      textoConfirmar: 'Marcar como Resuelta',
+      detalleHtml: `
+        <div class="flex justify-between"><span class="text-gray-500">Guía / Factura:</span><span class="font-bold text-[#1c4d37] dark:text-emerald-400">${esc(o.id)}${o.facturaNumero ? ' · ' + esc(o.facturaNumero) : ''}</span></div>
+        <div class="flex justify-between"><span class="text-gray-500">Cliente:</span><span class="font-semibold">${esc(o.cliente)}</span></div>
+        ${o.incidencia ? `<div class="pt-1.5 border-t border-gray-200 dark:border-gray-700"><span class="text-gray-500 block text-xs">Incidencia reportada:</span><span class="text-xs font-semibold">${esc(o.incidencia.motivo)} — ${esc(o.incidencia.desc)}</span></div>` : ''}
+      `,
+      onConfirm: ejecutarResolucion
+    });
+  } else {
+    ejecutarResolucion();
   }
-  sincronizarEstadoDespachoConVentaYFactura(o, 'En Preparación');
-  guardarOrdenes();
-  if ($('tbodyEstadoDespacho')) renderEstadoDespacho();
-  if ($('tbody')) renderOrdenes();
-  toast(`Incidencia de ${o.id} marcada como resuelta. La orden volvió a "En Preparación".`);
 }
 
 function renderEstadoDespacho() {

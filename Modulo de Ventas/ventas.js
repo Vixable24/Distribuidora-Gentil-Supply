@@ -561,7 +561,8 @@ function normalizarCliente(c) {
     telefono: normalizarTelefonoConCodigo(c.telefono),
     email: c.email || '',
     direccion: c.direccion || '',
-    activo: c.activo !== false && c.activo !== 0 && c.activo !== '0'
+    activo: c.activo !== false && c.activo !== 0 && c.activo !== '0',
+    motivoBloqueo: c.motivoBloqueo || ''
   };
 }
 
@@ -2741,17 +2742,20 @@ function renderClientes() {
     const realIdx = CLIENTES.indexOf(c);
     const inactivo = c.activo === false;
     const badgeEstadoCli = inactivo
-      ? '<span class="ml-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">Desactivado</span>'
+      ? `<span class="ml-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" title="${escHtml(c.motivoBloqueo || 'Cliente bloqueado')}">Bloqueado</span>`
+      : '';
+    const lineaMotivoBloq = inactivo && c.motivoBloqueo
+      ? `<p class="text-[11px] font-medium text-red-600 dark:text-red-400 mt-0.5 flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3 flex-shrink-0"></i> Motivo: ${escHtml(c.motivoBloqueo)}</p>`
       : '';
     const btnEstado = inactivo
       ? `<button type="button" onclick="event.stopPropagation(); abrirModalDesbloquearCliente(${realIdx})" class="text-amber-600 hover:text-[#1c4d37] dark:text-amber-400 dark:hover:text-emerald-400 p-1.5 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="Desbloquear / Reactivar Cliente">
           <i data-lucide="unlock" class="w-4 h-4"></i>
         </button>`
-      : `<button type="button" onclick="event.stopPropagation(); desactivarCliente(${realIdx})" class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors" title="Desactivar Cliente (Bloquear Ventas)">
+      : `<button type="button" onclick="event.stopPropagation(); desactivarCliente(${realIdx})" class="text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 rounded-md hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors" title="Bloquear / Desactivar Cliente">
           <i data-lucide="lock" class="w-4 h-4"></i>
         </button>`;
     return `<tr onclick="verCuentaCliente(${realIdx})" class="${inactivo ? 'bg-red-50/20 dark:bg-red-950/10' : ''} hover:bg-gray-50/80 dark:hover:bg-gray-700/50 transition-colors cursor-pointer">
-      <td class="py-3.5 px-4"><p class="font-semibold ${inactivo ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}">${escHtml(c.nombre)}${badgeEstadoCli}</p><p class="text-xs text-gray-400 dark:text-gray-500"><span class="font-mono font-semibold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)}</span> · ${escHtml(c.zona)} · <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-[#1c4d37] dark:bg-emerald-900/30 dark:text-emerald-300">${escHtml(c.ruta || rutaActual)}</span></p></td>
+      <td class="py-3.5 px-4"><p class="font-semibold ${inactivo ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}">${escHtml(c.nombre)}${badgeEstadoCli}</p><p class="text-xs text-gray-400 dark:text-gray-500"><span class="font-mono font-semibold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)}</span> · ${escHtml(c.zona)} · <span class="inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-[#1c4d37] dark:bg-emerald-900/30 dark:text-emerald-300">${escHtml(c.ruta || rutaActual)}</span></p>${lineaMotivoBloq}</td>
       <td class="py-3.5 px-4">${escHtml(c.contacto || '—')}<p class="text-xs text-gray-400 dark:text-gray-500">${escHtml(c.email || '')}</p></td>
       <td class="py-3.5 px-4 font-mono text-xs">${escHtml(c.telefono || '—')}</td>
       <td class="py-3.5 px-4 font-medium"><p>${fmt2(compras)}</p><p class="text-[11px] text-gray-400 dark:text-gray-500">${fmtBs(compras * tasa)}</p></td>
@@ -2925,7 +2929,8 @@ function registrarCliente(e) {
     telefono: telefonoFinal,
     email: document.getElementById('cliEmail').value.trim(),
     direccion: document.getElementById('cliDireccion').value.trim(),
-    activo: esEdicion ? (CLIENTES[editIdx].activo !== false) : true
+    activo: esEdicion ? (CLIENTES[editIdx].activo !== false) : true,
+    motivoBloqueo: esEdicion ? (CLIENTES[editIdx].motivoBloqueo || '') : ''
   };
 
   const formRef = e.target;
@@ -3032,25 +3037,83 @@ function verCuentaCliente(idx) {
 function desactivarCliente(idx) {
   const c = CLIENTES[idx];
   if (!c || c.activo === false) return;
+  const modal = document.getElementById('modalBloquearCliente');
   const saldo = saldoDeCliente(c.nombre);
+
+  if (!modal) return;
+  document.getElementById('bloqClienteIdx').value = String(idx);
+  if (document.getElementById('bloqMotivoSelect')) {
+    document.getElementById('bloqMotivoSelect').value = saldo > 0 ? 'Morosidad / Facturas vencidas' : 'Inactividad comercial prolongada';
+  }
+  if (document.getElementById('bloqMotivoObs')) {
+    document.getElementById('bloqMotivoObs').value = '';
+  }
+  const det = document.getElementById('bloqClienteDetalle');
+  if (det) {
+    det.innerHTML = `
+      <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Cliente:</span><span class="font-semibold text-gray-800 dark:text-gray-100">${escHtml(c.nombre)}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">RIF / Ruta:</span><span class="font-mono font-bold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)} · ${escHtml(c.ruta || obtenerRutaActivaVentas())}</span></div>
+      <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Deuda Pendiente:</span><span class="font-bold text-amber-600 dark:text-amber-400">${fmt2(saldo)}</span></div>
+    `;
+  }
+  openModal('modalBloquearCliente');
+  if (window.lucide) lucide.createIcons();
+  setTimeout(() => {
+    const obs = document.getElementById('bloqMotivoObs');
+    if (obs) obs.focus();
+  }, 120);
+}
+
+function cerrarModalBloquearCliente() {
+  closeModal('modalBloquearCliente');
+}
+
+function solicitarConfirmacionBloqueoCliente(e) {
+  e.preventDefault();
+  const idx = parseInt((document.getElementById('bloqClienteIdx') && document.getElementById('bloqClienteIdx').value) || '-1', 10);
+  const c = CLIENTES[idx];
+  if (!c || c.activo === false) return;
+
+  const motivoCat = (document.getElementById('bloqMotivoSelect') && document.getElementById('bloqMotivoSelect').value.trim()) || 'Motivo comercial';
+  const motivoObs = (document.getElementById('bloqMotivoObs') && document.getElementById('bloqMotivoObs').value.trim()) || '';
+  if (!motivoObs) {
+    toast('Por favor describe el motivo del bloqueo del cliente.');
+    if (document.getElementById('bloqMotivoObs')) document.getElementById('bloqMotivoObs').focus();
+    return;
+  }
+  const motivoCompleto = `${motivoCat}: ${motivoObs}`;
+  const saldo = saldoDeCliente(c.nombre);
+
+  cerrarModalBloquearCliente();
+
   confirmarAccionSistema({
-    titulo: 'Desactivar Cliente',
-    mensaje: 'El cliente quedará bloqueado para realizar nuevas ventas. Sus facturas emitidas y saldo pendiente permanecerán vigentes.',
+    titulo: 'Confirmar Bloqueo de Cliente',
+    mensaje: '¿Confirmas el bloqueo de este cliente? Quedará inhabilitado para nuevas ventas mientras sus facturas y saldo pendiente permanecen vigentes.',
     icono: 'lock',
     variante: 'danger',
-    textoConfirmar: 'Desactivar Cliente',
+    textoConfirmar: 'Confirmar Bloqueo',
     detalleHtml: `
       <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Cliente:</span><span class="font-semibold text-gray-800 dark:text-gray-100">${escHtml(c.nombre)}</span></div>
       <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">RIF / Ruta:</span><span class="font-mono font-bold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)} · ${escHtml(c.ruta || obtenerRutaActivaVentas())}</span></div>
       <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Deuda Pendiente:</span><span class="font-bold text-amber-600 dark:text-amber-400">${fmt2(saldo)}</span></div>
+      <div class="pt-1.5 border-t border-gray-200 dark:border-gray-700"><span class="text-gray-500 dark:text-gray-400 block text-xs">Motivo de Bloqueo:</span><span class="font-semibold text-red-600 dark:text-red-400 text-xs">${escHtml(motivoCompleto)}</span></div>
     `,
     onConfirm: () => {
       if (!CLIENTES[idx]) return;
       CLIENTES[idx].activo = false;
+      CLIENTES[idx].motivoBloqueo = motivoCompleto;
       guardarClientes();
+      if (typeof window.registrarLogSistema === 'function') {
+        window.registrarLogSistema({
+          modulo: 'Ventas',
+          accion: 'Bloqueo de Cliente',
+          detalle: `Cliente "${c.nombre}" (${c.rif}) bloqueado · Motivo: ${motivoCompleto}`,
+          nivel: 'critico'
+        });
+      }
       renderClientes();
       filtrarClientes();
-      toast(`Cliente "${c.nombre}" desactivado. No se le podrán registrar nuevas ventas hasta desbloquearlo.`);
+      toast(`Cliente "${c.nombre}" bloqueado. Motivo: ${motivoCompleto}`);
     }
   });
 }
@@ -3086,6 +3149,7 @@ function abrirModalDesbloquearCliente(idx) {
     <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Cliente:</span><span class="font-semibold text-gray-800 dark:text-gray-100">${escHtml(c.nombre)}</span></div>
     <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">RIF / Ruta:</span><span class="font-mono font-bold text-[#1c4d37] dark:text-emerald-400">${escHtml(c.rif)} · ${escHtml(c.ruta || obtenerRutaActivaVentas())}</span></div>
     <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Saldo Pendiente:</span><span class="font-bold text-amber-600 dark:text-amber-400">${fmt2(saldo)}</span></div>
+    ${c.motivoBloqueo ? `<div class="pt-1.5 border-t border-gray-200 dark:border-gray-700"><span class="text-gray-500 dark:text-gray-400 block">Motivo del bloqueo:</span><span class="font-semibold text-red-600 dark:text-red-400">${escHtml(c.motivoBloqueo)}</span></div>` : ''}
   `;
   openModal('modalDesbloquearCliente');
   if (window.lucide) lucide.createIcons();
@@ -3181,7 +3245,16 @@ async function confirmarDesbloqueoCliente(e) {
   }
 
   CLIENTES[idx].activo = true;
+  CLIENTES[idx].motivoBloqueo = '';
   guardarClientes();
+  if (typeof window.registrarLogSistema === 'function') {
+    window.registrarLogSistema({
+      modulo: 'Ventas',
+      accion: 'Desbloqueo de Cliente',
+      detalle: `Cliente "${c.nombre}" (${c.rif}) desbloqueado por autorización de ${userAuth}`,
+      nivel: 'info'
+    });
+  }
   cerrarModalDesbloquearCliente();
   renderClientes();
   filtrarClientes();

@@ -64,8 +64,8 @@
       <div class="md:col-span-5 bg-[#1c4d37] dark:bg-[#0f2d1f] text-white p-8 flex flex-col justify-between gap-8 transition-colors">
         <div class="space-y-6">
           <div class="flex items-center space-x-3">
-            <div class="p-2.5 border border-white/25 rounded-xl bg-white/10">
-              <i data-lucide="box" class="w-7 h-7 text-white"></i>
+            <div class="w-12 h-12 border border-white/25 rounded-xl bg-white/10 overflow-hidden flex items-center justify-center p-1.5">
+              <img src="imagenes/logo_gs_oscuro.png" alt="Logo Gentil Supply" class="w-full h-full object-contain">
             </div>
             <div>
               <span class="block font-bold text-xl tracking-wide leading-tight">Gentil Supply</span>
@@ -246,12 +246,12 @@
       el.textContent = 'Bs. ' + new Intl.NumberFormat('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(tasa);
     }
 
-    function completarIngreso(usuario) {
+    async function completarIngreso(usuario) {
       const destino = usuario.moduloInicio || obtenerModuloDestinoPorRol(usuario.rol);
       const rutaNorm = usuario.rol === 'Vendedor' && typeof window.normalizarRutaSistema === 'function'
         ? window.normalizarRutaSistema(usuario.ruta || usuario.username)
         : (usuario.ruta || '');
-      const sesion = {
+      let sesion = {
         id: usuario.id,
         nombre: usuario.nombre,
         username: usuario.username,
@@ -259,12 +259,49 @@
         ruta: rutaNorm,
         email: usuario.email || '',
         moduloInicio: destino,
+        sessionToken: 'tok_' + Date.now() + '_' + Math.random().toString(36).slice(2),
         loginEn: new Date().toISOString()
       };
+
+      // Iniciar sesión PHP oficial en el servidor (session_start) para todas las ventanas
+      try {
+        const respSes = await fetch('Base de Datos/api.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'session_start', usuario: sesion })
+        });
+        if (respSes.ok) {
+          const dataSes = await respSes.json();
+          if (dataSes && dataSes.ok && dataSes.sesion) {
+            sesion = Object.assign({}, sesion, dataSes.sesion);
+          }
+        }
+      } catch (e) {}
+
       localStorage.setItem('gs_sesion_activa', JSON.stringify(sesion));
+      localStorage.removeItem('gs_logout_broadcast');
+      try {
+        sessionStorage.setItem('gs_ventana_autenticada', sesion.sessionToken);
+      } catch (e) {}
       if (usuario.rol === 'Vendedor' && rutaNorm) {
         localStorage.setItem('gs_ruta_ventas_activa', rutaNorm);
       }
+      if (typeof window.registrarLogSistema === 'function') {
+        window.registrarLogSistema({
+          modulo: 'Seguridad / Sesión',
+          accion: 'Inicio de Sesión',
+          detalle: `Ingreso autorizado al sistema (${sesion.rol}${rutaNorm ? ' · ' + rutaNorm : ''})`,
+          usuario: `${sesion.nombre} (${sesion.username})`,
+          nivel: 'info'
+        });
+      }
+      try {
+        if (typeof BroadcastChannel !== 'undefined') {
+          const ch = new BroadcastChannel('gs_canal_sesion');
+          ch.postMessage({ tipo: 'LOGIN_ACTIVO', sesion });
+          ch.close();
+        }
+      } catch (e) {}
       window.location.href = destino;
     }
 
@@ -364,9 +401,10 @@
       }
 
       try {
+        const phpSes = window.__GS_PHP_SESSION__;
         const rawSes = localStorage.getItem('gs_sesion_activa');
-        const ses = rawSes ? JSON.parse(rawSes) : null;
-        if (ses && ses.username && ses.rol) {
+        const ses = phpSes || (rawSes ? JSON.parse(rawSes) : null);
+        if (ses && ses.username && ses.rol && phpSes) {
           const box = document.getElementById('sesionPreviaBox');
           const txt = document.getElementById('sesionPreviaTexto');
           const sub = document.getElementById('sesionPreviaSub');
@@ -379,6 +417,8 @@
             };
             box.classList.remove('hidden');
           }
+        } else if (!phpSes) {
+          localStorage.removeItem('gs_sesion_activa');
         }
       } catch (e) {}
 

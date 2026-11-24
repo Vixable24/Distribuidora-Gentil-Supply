@@ -116,25 +116,26 @@
   </aside>
 
   <main class="flex-1 overflow-y-auto p-8">
-    <div class="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-      <div>
-        <div data-logo-modulo="true" class="inline-flex items-center gap-2 px-3 py-1.5 mb-2.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
-          <div class="w-6 h-6 rounded-lg bg-[#1c4d37] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
-            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-          </div>
-          <span class="text-xs font-bold tracking-wide text-[#1c4d37] dark:text-emerald-400">Gentil Supply · Módulo de Superadmin</span>
+    <div class="mb-6 w-full">
+      <div data-logo-modulo="true" class="inline-flex items-center gap-2 px-3 py-1.5 mb-2.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
+        <div class="w-6 h-6 rounded-lg bg-[#1c4d37] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
         </div>
-        <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white">Reportes Categorizados</h2>
-        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Descarga reportes por cliente, estado de factura, línea de producto y rango de fecha.</p>
+        <span class="text-xs font-bold tracking-wide text-[#1c4d37] dark:text-emerald-400">Gentil Supply · Módulo de Superadmin</span>
       </div>
-      <div class="flex flex-wrap items-center gap-2.5">
-        <button type="button" onclick="descargarReporteGerenciaCSV('facturas')" class="bg-[#1c4d37] hover:bg-[#133928] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-medium px-4 py-3 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
+      <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white leading-tight">Reportes Categorizados</h2>
+      <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Descarga reportes por cliente, estado de factura, línea de producto y rango de fecha.</p>
+      <div class="mt-4 flex flex-wrap items-center justify-start gap-2.5">
+        <button type="button" onclick="descargarReporteGerenciaCSV('facturas')" class="bg-[#1c4d37] hover:bg-[#133928] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
           <i data-lucide="download" class="w-4 h-4"></i> Facturas (CSV)
         </button>
-        <button type="button" onclick="descargarReporteGerenciaCSV('productos')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-4 py-3 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
+        <button type="button" onclick="descargarReporteGerenciaCSV('productos')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
           <i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Productos (CSV)
         </button>
-        <button type="button" onclick="imprimirReporteGerencia()" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 font-medium px-4 py-3 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
+        <button type="button" onclick="descargarBaseDatosSistema()" class="bg-[#133928] hover:bg-[#0f2d1f] dark:bg-emerald-800 dark:hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
+          <i data-lucide="database" class="w-4 h-4"></i> Descargar Base de Datos (.SQL)
+        </button>
+        <button type="button" onclick="imprimirReporteGerencia()" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 font-medium px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
           <i data-lucide="printer" class="w-4 h-4"></i> Imprimir / PDF
         </button>
       </div>
@@ -232,6 +233,9 @@
       <button type="button" id="tabRepAdmin-presentaciones" onclick="switchTabReporteAdmin('presentaciones')" class="px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
         3. Desglose por Presentación
       </button>
+      <button type="button" id="tabRepAdmin-logs" onclick="switchTabReporteAdmin('logs')" class="px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+        4. Lector de Logs (Bitácora)
+      </button>
     </div>
 
     <div id="secRepAdmin-facturas" class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
@@ -294,6 +298,72 @@
             </tr>
           </thead>
           <tbody id="tablaDetallePresentaciones" class="divide-y divide-gray-50 dark:divide-gray-700"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="secRepAdmin-logs" class="hidden bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 mb-5">
+        <div>
+          <h3 class="text-lg font-bold text-gray-800 dark:text-white">Lector de Logs y Bitácora Operativa del Sistema</h3>
+          <p class="text-xs text-gray-500 dark:text-gray-400">Audita eventos en vivo o carga un archivo <code>.log</code> / <code>.txt</code> externo.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <input type="file" id="inputArchivoLogExterno" accept=".log,.txt,.json,.csv" class="hidden" onchange="cargarArchivoLogExterno(event)">
+          <button type="button" onclick="document.getElementById('inputArchivoLogExterno').click()" class="text-xs font-semibold px-3.5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition-colors flex items-center gap-1.5">
+            <i data-lucide="folder-open" class="w-3.5 h-3.5"></i> Abrir Archivo .LOG
+          </button>
+          <button type="button" onclick="descargarLogsSistema()" class="text-xs font-semibold px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 text-[#1c4d37] dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 transition-colors flex items-center gap-1.5">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Descargar Logs (.LOG)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div>
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            <input id="busquedaLogsReporte" type="text" oninput="renderLectorLogsGerencia()" placeholder="Buscar en logs..." class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-9 pr-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm">
+          </div>
+        </div>
+        <div class="relative">
+          <select id="filtroModuloLogsReporte" onchange="renderLectorLogsGerencia()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm cursor-pointer">
+            <option value="todos">Todos los Módulos</option>
+            <option value="Ventas">Ventas</option>
+            <option value="Facturación">Facturación</option>
+            <option value="Cobranzas">Cobranzas</option>
+            <option value="Despacho">Despacho</option>
+            <option value="Inventario">Inventario</option>
+            <option value="Seguridad / Sesión">Seguridad / Sesión</option>
+            <option value="Gerencia / Base de Datos">Gerencia / Base de Datos</option>
+            <option value="Archivo Externo">Archivo .LOG Cargado</option>
+          </select>
+          <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+        </div>
+        <div class="relative">
+          <select id="filtroNivelLogsReporte" onchange="renderLectorLogsGerencia()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 pl-4 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm cursor-pointer">
+            <option value="todos">Todos los Niveles</option>
+            <option value="info">Operación / Info</option>
+            <option value="alerta">Alerta / Incidencia</option>
+            <option value="critico">Crítico / Anulación / Bloqueo</option>
+          </select>
+          <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-gray-600 dark:text-gray-300 datagrid-compacto">
+          <thead>
+            <tr class="border-b border-gray-100 dark:border-gray-700 text-xs font-bold text-emerald-900 dark:text-emerald-400 uppercase tracking-wider select-none">
+              <th class="py-3 px-4">ID / Fecha</th>
+              <th class="py-3 px-4">Módulo</th>
+              <th class="py-3 px-4">Acción / Evento</th>
+              <th class="py-3 px-4">Detalle del Registro</th>
+              <th class="py-3 px-4">Usuario / Origen</th>
+              <th class="py-3 px-4 text-center">Nivel</th>
+            </tr>
+          </thead>
+          <tbody id="tablaLogsSistema" class="divide-y divide-gray-50 dark:divide-gray-700"></tbody>
         </table>
       </div>
     </div>

@@ -353,6 +353,49 @@
     <div id="modalCuentaBody" class="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-6 shadow-xl border border-gray-100 dark:border-gray-700"></div>
   </div>
 
+  <!-- MODAL: BLOQUEAR / DESACTIVAR CLIENTE (Pide Motivo de Bloqueo y luego Confirmación) -->
+  <div id="modalBloquearCliente" onclick="if(event.target===this) cerrarModalBloquearCliente()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden opacity-0 items-center justify-center p-4 transition-opacity duration-200">
+    <form onsubmit="solicitarConfirmacionBloqueoCliente(event)" class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 dark:border-gray-700 space-y-4">
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center mx-auto">
+          <i data-lucide="lock" class="w-7 h-7"></i>
+        </div>
+        <h3 class="text-xl font-bold text-red-600 dark:text-red-400">Bloquear / Desactivar Cliente</h3>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Indica el motivo del bloqueo. El cliente no podrá recibir nuevas ventas mientras esté bloqueado, conservando sus facturas y deuda pendiente.</p>
+      </div>
+
+      <input type="hidden" id="bloqClienteIdx" value="-1">
+
+      <div id="bloqClienteDetalle" class="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 rounded-xl p-3.5 text-xs space-y-1.5"></div>
+
+      <div>
+        <label for="bloqMotivoSelect" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Motivo Principal del Bloqueo</label>
+        <div class="relative">
+          <select id="bloqMotivoSelect" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg pl-4 pr-10 py-2.5 text-sm text-gray-800 dark:text-gray-200 appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] cursor-pointer">
+            <option value="Morosidad / Facturas vencidas">Morosidad / Facturas vencidas</option>
+            <option value="Límite de crédito excedido">Límite de crédito excedido</option>
+            <option value="Cheque o pago rechazado en cobranza">Cheque o pago rechazado en cobranza</option>
+            <option value="Inactividad comercial prolongada">Inactividad comercial prolongada</option>
+            <option value="Actualización o verificación de datos fiscales">Actualización o verificación de datos fiscales</option>
+            <option value="Solicitud directa del cliente">Solicitud directa del cliente</option>
+            <option value="Otro motivo administrativo">Otro motivo administrativo</option>
+          </select>
+          <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+        </div>
+      </div>
+
+      <div>
+        <label for="bloqMotivoObs" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Detalle / Observación del Bloqueo</label>
+        <textarea id="bloqMotivoObs" required rows="2" placeholder="Describe brevemente el motivo del bloqueo comercial..." class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3.5 py-2.5 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]"></textarea>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="button" onclick="cerrarModalBloquearCliente()" class="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold text-sm transition-colors">Cancelar</button>
+        <button type="submit" class="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-sm shadow-sm transition-colors">Continuar a Confirmación</button>
+      </div>
+    </form>
+  </div>
+
   <!-- MODAL: DESBLOQUEAR / REACTIVAR CLIENTE (Pide contraseña manteniendo estética Gentil Supply) -->
   <div id="modalDesbloquearCliente" onclick="if(event.target===this) cerrarModalDesbloquearCliente()" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden opacity-0 items-center justify-center p-4 transition-opacity duration-200">
     <form onsubmit="confirmarDesbloqueoCliente(event)" class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 dark:border-gray-700 space-y-4">

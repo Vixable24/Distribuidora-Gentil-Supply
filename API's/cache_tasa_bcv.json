@@ -1,11 +1,20 @@
 {
     "ok": true,
-    "tasa": 918.77,
-    "tasaExacta": 918.7662,
+    "tasa": 919.82,
+    "tasaExacta": 919.8227,
     "fuente": "BCV Oficial (dolarapi)",
-    "fechaValor": "2026-11-20",
-    "diaVerificado": "2026-11-23",
-    "actualizado": "2026-11-23T09:51:33-04:00",
-    "timestamp": 1795441893,
-    "desdeCache": false
+    "fechaValor": "2026-11-24",
+    "fechaBCV": "2026-11-24",
+    "diaVerificado": "2026-11-24",
+    "verificacionDia": "2026-11-24",
+    "diaServidor": "2026-11-24",
+    "acordeAlDia": true,
+    "actualizado": "2026-11-24T08:57:34-04:00",
+    "consultadoEl": "2026-11-24T08:57:34-04:00",
+    "timestamp": 1795525054,
+    "proximaMedianoche": "2026-11-25T00:00:00-04:00",
+    "segundosHastaMedianoche": 54146,
+    "desdeCache": false,
+    "reiniciadoHoy": true,
+    "offlineFallback": false
 }

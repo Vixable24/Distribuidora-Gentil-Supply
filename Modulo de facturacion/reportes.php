@@ -115,22 +115,20 @@
 
   <!-- CONTENIDO PRINCIPAL: REPORTES DE FACTURACIÓN -->
   <main class="flex-1 overflow-y-auto p-8">
-    <div class="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-      <div>
-        <div data-logo-modulo="true" class="inline-flex items-center gap-2 px-3 py-1.5 mb-2.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
-          <div class="w-6 h-6 rounded-lg bg-[#1c4d37] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
-            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
-          </div>
-          <span class="text-xs font-bold tracking-wide text-[#1c4d37] dark:text-emerald-400">Gentil Supply · Módulo de Facturación</span>
+    <div class="mb-6 w-full">
+      <div data-logo-modulo="true" class="inline-flex items-center gap-2 px-3 py-1.5 mb-2.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
+        <div class="w-6 h-6 rounded-lg bg-[#1c4d37] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+          <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
         </div>
-        <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white">Reportes Fiscales y de Cobranza</h2>
-        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Libro de facturación, IVA (16%), estados de cobro y exportación categorizada por cliente, estado, línea y fechas.</p>
+        <span class="text-xs font-bold tracking-wide text-[#1c4d37] dark:text-emerald-400">Gentil Supply · Módulo de Facturación</span>
       </div>
-      <div class="flex flex-wrap items-center gap-2.5">
-        <button type="button" onclick="descargarReporteFacturacionCSV()" class="bg-[#1c4d37] hover:bg-[#133928] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-medium px-4 py-3 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
+      <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white leading-tight">Reportes Fiscales y de Cobranza</h2>
+      <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Libro de facturación, IVA (16%), estados de cobro y exportación categorizada por cliente, estado, línea y fechas.</p>
+      <div class="mt-4 flex flex-wrap items-center justify-start gap-2.5">
+        <button type="button" onclick="descargarReporteFacturacionCSV()" class="bg-[#1c4d37] hover:bg-[#133928] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
           <i data-lucide="download" class="w-4 h-4"></i> Descargar CSV / Excel
         </button>
-        <button type="button" onclick="imprimirReporteFacturacion()" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 font-medium px-4 py-3 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
+        <button type="button" onclick="imprimirReporteFacturacion()" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 font-medium px-4 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-sm transition-all">
           <i data-lucide="printer" class="w-4 h-4"></i> Imprimir Reporte
         </button>
       </div>

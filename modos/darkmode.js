@@ -537,6 +537,102 @@ function initEstilosSistemaUI() {
       border-color: #374151 !important;
       color: #34d399 !important;
     }
+
+    /* Títulos superiores de todos los cuadros (KPIs y tarjetas) en Negro (modo claro) y Blanco (modo oscuro) en lugar de gris */
+    main .rounded-2xl p.uppercase,
+    main .rounded-xl p.uppercase,
+    main .rounded-2xl span.uppercase,
+    main .rounded-xl span.uppercase,
+    main .rounded-2xl > p:first-child,
+    main .rounded-2xl > div:first-child > p.uppercase:first-child {
+      color: #000000 !important;
+    }
+    html.dark main .rounded-2xl p.uppercase,
+    html.dark main .rounded-xl p.uppercase,
+    html.dark main .rounded-2xl span.uppercase,
+    html.dark main .rounded-xl span.uppercase,
+    html.dark main .rounded-2xl > p:first-child,
+    html.dark main .rounded-2xl > div:first-child > p.uppercase:first-child {
+      color: #ffffff !important;
+    }
+
+    /* Sidebar Hamburguesa Desplegable / Encogible */
+    aside {
+      transition: width 0.22s ease, padding 0.22s ease, background-color 0.3s ease !important;
+      position: relative;
+    }
+    body.gs-sidebar-collapsed aside {
+      width: 4.75rem !important;
+      padding-left: 0.65rem !important;
+      padding-right: 0.65rem !important;
+    }
+    body.gs-sidebar-collapsed aside .gs-sidebar-header {
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 0.5rem !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+    body.gs-sidebar-collapsed aside .gs-sidebar-brand-text,
+    body.gs-sidebar-collapsed aside nav div.pt-4,
+    body.gs-sidebar-collapsed aside #btnVolverAdmin p,
+    body.gs-sidebar-collapsed aside > div:last-child > div:first-child {
+      display: none !important;
+    }
+    body.gs-sidebar-collapsed aside nav a {
+      justify-content: center !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+    body.gs-sidebar-collapsed aside nav a > span:not(:has(i)),
+    body.gs-sidebar-collapsed aside nav a > span > span,
+    body.gs-sidebar-collapsed aside nav a > svg:last-child:not(:first-child),
+    body.gs-sidebar-collapsed aside nav a > i:last-child:not(:first-child),
+    body.gs-sidebar-collapsed aside #btnVolverAdmin a span {
+      display: none !important;
+    }
+    body.gs-sidebar-collapsed aside nav a > span:has(i),
+    body.gs-sidebar-collapsed aside nav a > span:has(svg) {
+      margin: 0 !important;
+      justify-content: center !important;
+    }
+    body.gs-sidebar-collapsed aside #btnVolverAdmin a {
+      justify-content: center !important;
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+    body.gs-sidebar-collapsed aside > div:last-child {
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0.5rem 0.25rem !important;
+      gap: 0.35rem !important;
+    }
+    body.gs-sidebar-collapsed aside > div:last-child > div:last-child {
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 0.25rem !important;
+    }
+
+    /* Paginación de DataGrids con límite expansible */
+    tr.gs-row-pag-hidden {
+      display: none !important;
+    }
+    select.gs-pag-limit-select {
+      padding: 0.3rem 1.85rem 0.3rem 0.65rem !important;
+      font-size: 0.75rem !important;
+      line-height: 1.1rem !important;
+      height: auto !important;
+    }
+    @media print {
+      tr.gs-row-pag-hidden {
+        display: table-row !important;
+      }
+      .gs-datagrid-paginator {
+        display: none !important;
+      }
+    }
   `;
   (document.head || document.documentElement).appendChild(style);
 }
@@ -592,19 +688,159 @@ function initConectorBCV() {
 }
 initConectorBCV();
 
+function ejecutarCierreSesionInmediato(redirigir = true) {
+  try {
+    localStorage.removeItem('gs_sesion_activa');
+    sessionStorage.removeItem('gs_ventana_autenticada');
+  } catch (e) {}
+  if (redirigir) {
+    const urlLogin = `${rutaBaseProyecto()}login.php`;
+    if (!/\/login\.php$/i.test(window.location.pathname || '')) {
+      window.location.replace(urlLogin);
+    }
+  }
+}
+
+async function propagarCierreSesionGlobal() {
+  try {
+    const ses = JSON.parse(localStorage.getItem('gs_sesion_activa') || 'null');
+    if (ses && typeof window.registrarLogSistema === 'function') {
+      window.registrarLogSistema({
+        modulo: 'Seguridad / Sesión',
+        accion: 'Cierre de Sesión',
+        detalle: `Sesión finalizada por el usuario (${ses.rol || 'Sistema'})`,
+        usuario: `${ses.nombre || ses.username} (${ses.username || ''})`,
+        nivel: 'info'
+      });
+    }
+  } catch (e) {}
+
+  try {
+    const endpoint = `${rutaBaseProyecto()}Base de Datos/api.php?action=logout`;
+    await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'logout' }),
+      keepalive: true
+    });
+  } catch (e) {}
+
+  try {
+    localStorage.setItem('gs_logout_broadcast', String(Date.now()));
+    localStorage.removeItem('gs_sesion_activa');
+    sessionStorage.removeItem('gs_ventana_autenticada');
+  } catch (e) {}
+
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      const ch = new BroadcastChannel('gs_canal_sesion');
+      ch.postMessage({ tipo: 'LOGOUT_GLOBAL', ts: Date.now() });
+      ch.close();
+    }
+  } catch (e) {}
+
+  ejecutarCierreSesionInmediato(true);
+}
+
 function cerrarSesionSistema() {
   confirmarAccionSistema({
     titulo: 'Cerrar Sesión',
-    mensaje: '¿Deseas cerrar la sesión actual y volver al inicio de sesión?',
+    mensaje: '¿Deseas cerrar la sesión actual? Todas las pestañas y ventanas abiertas cerrarán sesión automáticamente.',
     icono: 'log-out',
     textoConfirmar: 'Cerrar Sesión',
     onConfirm: () => {
-      try { localStorage.removeItem('gs_sesion_activa'); } catch (e) {}
-      window.location.href = `${rutaBaseProyecto()}login.php`;
+      propagarCierreSesionGlobal();
     }
   });
 }
 window.cerrarSesionSistema = cerrarSesionSistema;
+
+// Control de sesión individual por ventana y sincronización de cierre entre pestañas
+function initControlSesionVentanas() {
+  const pathActual = decodeURIComponent(window.location.pathname || '');
+  const esLogin = /login\.php$/i.test(pathActual);
+
+  // Escuchar cierre de sesión emitido desde cualquier otra pestaña o ventana
+  window.addEventListener('storage', (ev) => {
+    if (!ev) return;
+    if (ev.key === 'gs_logout_broadcast' && ev.newValue) {
+      ejecutarCierreSesionInmediato(!esLogin);
+    } else if (ev.key === 'gs_sesion_activa' && !ev.newValue && !esLogin) {
+      ejecutarCierreSesionInmediato(true);
+    }
+  });
+
+  try {
+    if (typeof BroadcastChannel !== 'undefined') {
+      const canal = new BroadcastChannel('gs_canal_sesion');
+      canal.onmessage = (ev) => {
+        if (ev && ev.data && ev.data.tipo === 'LOGOUT_GLOBAL') {
+          ejecutarCierreSesionInmediato(!esLogin);
+        }
+      };
+    }
+  } catch (e) {}
+
+  if (esLogin) return;
+
+  // Hidratar sesión desde PHP (window.__GS_PHP_SESSION__) o exigir inicio de sesión obligatorio
+  const phpSes = window.__GS_PHP_SESSION__;
+  let localSes = null;
+  try {
+    localSes = JSON.parse(localStorage.getItem('gs_sesion_activa') || 'null');
+  } catch (e) {}
+
+  if (phpSes && phpSes.username) {
+    if (!localSes || localSes.username !== phpSes.username) {
+      try {
+        localStorage.setItem('gs_sesion_activa', JSON.stringify(phpSes));
+        localSes = phpSes;
+      } catch (e) {}
+    }
+    try {
+      sessionStorage.setItem('gs_ventana_autenticada', phpSes.sessionToken || phpSes.username);
+    } catch (e) {}
+  } else if (!localSes || !localSes.username) {
+    ejecutarCierreSesionInmediato(true);
+    return;
+  }
+
+  // Verificar con el servidor PHP al enfocar la pestaña o periódicamente por si la sesión expiró o se cerró
+  const verificarEstadoSesionServidor = async () => {
+    try {
+      const resp = await fetch(`${rutaBaseProyecto()}Base de Datos/api.php?action=check_session&_t=${Date.now()}`, {
+        cache: 'no-store'
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.ok && data.activa === false) {
+          ejecutarCierreSesionInmediato(true);
+        }
+      }
+    } catch (e) {}
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      if (!localStorage.getItem('gs_sesion_activa')) {
+        ejecutarCierreSesionInmediato(true);
+        return;
+      }
+      verificarEstadoSesionServidor();
+    }
+  });
+
+  setInterval(() => {
+    if (!localStorage.getItem('gs_sesion_activa')) {
+      ejecutarCierreSesionInmediato(true);
+      return;
+    }
+    if (document.visibilityState === 'visible') {
+      verificarEstadoSesionServidor();
+    }
+  }, 15000);
+}
+initControlSesionVentanas();
 
 // Suprime el título del documento durante window.print() en todos los módulos para evitar encabezados del navegador
 let _sysTituloPrevioImpresion = '';
@@ -654,9 +890,11 @@ document.addEventListener('DOMContentLoaded', () => {
   aplicarTemaInmediato();
   initEstilosSistemaUI();
   initConectorBCV();
+  initSidebarHamburguesa();
   initLogoModuloSuperior();
   initSaludoRolModulo();
   initBotonRetornoAdmin();
+  initPaginacionDataGrids();
   sincronizarGraficasYTextoTema();
   requestAnimationFrame(() => {
     sincronizarGraficasYTextoTema();
@@ -825,7 +1063,64 @@ function confirmarAccionSistema(opciones) {
 window.confirmarAccionSistema = confirmarAccionSistema;
 window.cerrarConfirmacionSistema = cerrarConfirmacionSistema;
 
-// Inserta o verifica el pequeño logo identificador del módulo en la esquina superior izquierda del contenido principal (ajeno al sidebar)
+// Sidebar Hamburguesa: permite desplegar y encoger (colapsar) el sidebar con un botón
+const SIDEBAR_COLLAPSED_KEY = 'gs_sidebar_colapsado';
+
+function toggleSidebarHamburguesa() {
+  const colapsado = document.body.classList.toggle('gs-sidebar-collapsed');
+  try {
+    localStorage.setItem(SIDEBAR_COLLAPSED_KEY, colapsado ? '1' : '0');
+  } catch (e) {}
+  const btn = document.getElementById('btnSidebarHamburguesa');
+  if (btn) {
+    btn.setAttribute('title', colapsado ? 'Desplegar menú lateral' : 'Encoger menú lateral');
+  }
+}
+window.toggleSidebarHamburguesa = toggleSidebarHamburguesa;
+
+function initSidebarHamburguesa() {
+  const aside = document.querySelector('aside');
+  if (!aside) return;
+
+  try {
+    if (localStorage.getItem(SIDEBAR_COLLAPSED_KEY) === '1') {
+      document.body.classList.add('gs-sidebar-collapsed');
+    }
+  } catch (e) {}
+
+  // Añadir tooltips con el texto de cada enlace para cuando el sidebar está encogido
+  aside.querySelectorAll('nav a').forEach(a => {
+    if (!a.getAttribute('title')) {
+      const txt = (a.textContent || '').trim().replace(/\s+/g, ' ');
+      if (txt) a.setAttribute('title', txt);
+    }
+  });
+
+  const topBlock = aside.querySelector(':scope > div:first-child');
+  const headerRow = topBlock ? topBlock.querySelector(':scope > div:first-child') : null;
+  if (!headerRow || document.getElementById('btnSidebarHamburguesa')) return;
+
+  headerRow.classList.add('gs-sidebar-header', 'justify-between');
+  const textDiv = headerRow.querySelector(':scope > div:nth-child(2)');
+  if (textDiv) {
+    textDiv.classList.add('gs-sidebar-brand-text', 'flex-1', 'min-w-0');
+  }
+
+  const colapsado = document.body.classList.contains('gs-sidebar-collapsed');
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'btnSidebarHamburguesa';
+  btn.onclick = toggleSidebarHamburguesa;
+  btn.title = colapsado ? 'Desplegar menú lateral' : 'Encoger menú lateral';
+  btn.className = 'p-2 rounded-lg bg-white/10 hover:bg-white/20 text-emerald-100 hover:text-white border border-white/15 transition flex-shrink-0';
+  btn.innerHTML = '<i data-lucide="menu" class="w-5 h-5"></i>';
+  headerRow.appendChild(btn);
+
+  if (window.lucide) window.lucide.createIcons();
+}
+window.initSidebarHamburguesa = initSidebarHamburguesa;
+
+// Inserta o verifica el pequeño logo identificador del módulo en la esquina superior izquierda del contenido principal (como estaba originalmente)
 function initLogoModuloSuperior() {
   if (document.querySelector('[data-logo-modulo]')) return;
   const pathActual = decodeURIComponent(window.location.pathname || '');
@@ -865,6 +1160,186 @@ function initLogoModuloSuperior() {
   }
   if (window.lucide) window.lucide.createIcons();
 }
+
+// ============================================================================
+// BITÁCORA Y LECTOR DE LOGS DEL SISTEMA (gs_logs_sistema_v1)
+// ============================================================================
+const LOGS_STORAGE_KEY = 'gs_logs_sistema_v1';
+
+function obtenerUsuarioActivoParaLog() {
+  try {
+    const ses = JSON.parse(localStorage.getItem('gs_sesion_activa') || 'null');
+    if (ses && ses.username) {
+      return `${ses.nombre || ses.username} (${ses.username})`;
+    }
+  } catch (e) {}
+  return 'Sistema Gentil Supply';
+}
+
+function registrarLogSistema(entry) {
+  if (!entry || typeof entry !== 'object') return;
+  try {
+    const raw = localStorage.getItem(LOGS_STORAGE_KEY);
+    const lista = raw ? JSON.parse(raw) : [];
+    const arr = Array.isArray(lista) ? lista : [];
+    const ahora = new Date();
+    const fechaISO = ahora.toISOString().slice(0, 10);
+    const hora = ahora.toTimeString().slice(0, 8);
+    const nuevo = {
+      id: 'LOG-' + String(Date.now()).slice(-6) + '-' + Math.floor(Math.random() * 90 + 10),
+      fecha: entry.fecha || fechaISO,
+      hora: entry.hora || hora,
+      modulo: entry.modulo || 'General',
+      accion: entry.accion || 'Operación',
+      detalle: entry.detalle || '',
+      usuario: entry.usuario || obtenerUsuarioActivoParaLog(),
+      nivel: entry.nivel || 'info'
+    };
+    arr.unshift(nuevo);
+    localStorage.setItem(LOGS_STORAGE_KEY, JSON.stringify(arr.slice(0, 500)));
+  } catch (e) {}
+}
+window.registrarLogSistema = registrarLogSistema;
+
+// ============================================================================
+// MOTOR UNIVERSAL DE PAGINACIÓN EXPANSIBLE PARA TODOS LOS DATAGRIDS
+// ============================================================================
+const _gsPaginacionEstado = {};
+
+function aplicarPaginacionEnTbody(tbody) {
+  if (!tbody || !tbody.id) return;
+  const table = tbody.closest('table');
+  if (!table) return;
+
+  const id = tbody.id;
+  if (!_gsPaginacionEstado[id]) {
+    const guardadoLim = sessionStorage.getItem(`gs_pag_lim_${id}`);
+    _gsPaginacionEstado[id] = {
+      pagina: 1,
+      limite: guardadoLim ? (guardadoLim === 'todos' ? 'todos' : (parseInt(guardadoLim, 10) || 10)) : 10
+    };
+  }
+  const st = _gsPaginacionEstado[id];
+  const todasLasFilas = Array.from(tbody.querySelectorAll(':scope > tr'));
+  const filasDatos = todasLasFilas.filter(tr => {
+    const tds = tr.querySelectorAll('td');
+    if (tds.length === 1 && tds[0].hasAttribute('colspan')) return false;
+    return tds.length > 0;
+  });
+
+  const total = filasDatos.length;
+  const limNum = st.limite === 'todos' ? Math.max(1, total) : (parseInt(st.limite, 10) || 10);
+  const totalPaginas = Math.max(1, Math.ceil(total / limNum));
+  if (st.pagina > totalPaginas) st.pagina = totalPaginas;
+  if (st.pagina < 1) st.pagina = 1;
+
+  const inicio = total === 0 ? 0 : (st.pagina - 1) * limNum;
+  const fin = total === 0 ? 0 : Math.min(total, inicio + limNum);
+
+  filasDatos.forEach((tr, idx) => {
+    if (st.limite === 'todos' || (idx >= inicio && idx < fin)) {
+      tr.classList.remove('gs-row-pag-hidden');
+    } else {
+      tr.classList.add('gs-row-pag-hidden');
+    }
+  });
+
+  const contenedorTabla = table.closest('.overflow-x-auto') || table.parentElement;
+  if (!contenedorTabla || !contenedorTabla.parentElement) return;
+
+  let barra = document.getElementById(`gsPagBar-${id}`);
+  if (!barra) {
+    barra = document.createElement('div');
+    barra.id = `gsPagBar-${id}`;
+    barra.className = 'gs-datagrid-paginator mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-gray-500 dark:text-gray-400 select-none';
+    contenedorTabla.insertAdjacentElement('afterend', barra);
+  }
+
+  const opcionesLimite = [5, 10, 25, 50, 100, 'todos'];
+  const optionsHtml = opcionesLimite.map(op => {
+    const sel = String(st.limite) === String(op) ? 'selected' : '';
+    const txt = op === 'todos' ? 'Todos' : `${op} filas`;
+    return `<option value="${op}" ${sel}>${txt}</option>`;
+  }).join('');
+
+  // Generar botones de páginas cercanas
+  let botonesPagHtml = '';
+  const maxBotones = 5;
+  let pIni = Math.max(1, st.pagina - 2);
+  let pFin = Math.min(totalPaginas, pIni + maxBotones - 1);
+  if (pFin - pIni < maxBotones - 1) {
+    pIni = Math.max(1, pFin - maxBotones + 1);
+  }
+  for (let p = pIni; p <= pFin; p++) {
+    const activo = p === st.pagina;
+    botonesPagHtml += `<button type="button" onclick="cambiarPaginaDataGrid('${id}', ${p})" class="min-w-[28px] h-7 px-2 rounded-lg font-semibold transition-colors ${activo ? 'bg-[#1c4d37] text-white dark:bg-emerald-600 shadow-2xs' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'}">${p}</button>`;
+  }
+
+  const rangoTexto = total === 0
+    ? 'Mostrando 0 de 0 registros'
+    : `Mostrando <b class="text-gray-700 dark:text-gray-200">${inicio + 1}–${fin}</b> de <b class="text-gray-700 dark:text-gray-200">${total}</b> registros`;
+
+  barra.innerHTML = `
+    <div class="flex flex-wrap items-center gap-3">
+      <span>${rangoTexto}</span>
+      <div class="inline-flex items-center gap-1.5">
+        <span class="text-[11px] text-gray-400 dark:text-gray-500">Límite:</span>
+        <div class="relative inline-block">
+          <select onchange="cambiarLimiteDataGrid('${id}', this.value)" class="gs-pag-limit-select bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37]">
+            ${optionsHtml}
+          </select>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+        </div>
+      </div>
+    </div>
+    <div class="inline-flex items-center gap-1">
+      <button type="button" onclick="cambiarPaginaDataGrid('${id}', ${st.pagina - 1})" ${st.pagina <= 1 ? 'disabled' : ''} class="h-7 px-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+        Anterior
+      </button>
+      ${botonesPagHtml}
+      <button type="button" onclick="cambiarPaginaDataGrid('${id}', ${st.pagina + 1})" ${st.pagina >= totalPaginas ? 'disabled' : ''} class="h-7 px-2.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+        Siguiente
+      </button>
+    </div>
+  `;
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function cambiarPaginaDataGrid(id, nuevaPagina) {
+  const tbody = document.getElementById(id);
+  if (!tbody) return;
+  if (!_gsPaginacionEstado[id]) _gsPaginacionEstado[id] = { pagina: 1, limite: 10 };
+  _gsPaginacionEstado[id].pagina = Number(nuevaPagina) || 1;
+  aplicarPaginacionEnTbody(tbody);
+}
+window.cambiarPaginaDataGrid = cambiarPaginaDataGrid;
+
+function cambiarLimiteDataGrid(id, nuevoLimite) {
+  const tbody = document.getElementById(id);
+  if (!tbody) return;
+  if (!_gsPaginacionEstado[id]) _gsPaginacionEstado[id] = { pagina: 1, limite: 10 };
+  _gsPaginacionEstado[id].limite = nuevoLimite === 'todos' ? 'todos' : (parseInt(nuevoLimite, 10) || 10);
+  _gsPaginacionEstado[id].pagina = 1;
+  try {
+    sessionStorage.setItem(`gs_pag_lim_${id}`, String(_gsPaginacionEstado[id].limite));
+  } catch (e) {}
+  aplicarPaginacionEnTbody(tbody);
+}
+window.cambiarLimiteDataGrid = cambiarLimiteDataGrid;
+
+function initPaginacionDataGrids() {
+  const tbodies = document.querySelectorAll('table.datagrid-compacto tbody[id]');
+  tbodies.forEach(tbody => {
+    aplicarPaginacionEnTbody(tbody);
+    if (tbody.__gsPagObserverBound) return;
+    tbody.__gsPagObserverBound = true;
+    const obs = new MutationObserver(() => {
+      aplicarPaginacionEnTbody(tbody);
+    });
+    obs.observe(tbody, { childList: true });
+  });
+}
+window.initPaginacionDataGrids = initPaginacionDataGrids;
 
 // Muestra el botón de retorno en el sidebar si se accedió desde Gerente (?from=admin) o Superadmin (?from=superadmin)
 function initBotonRetornoAdmin() {

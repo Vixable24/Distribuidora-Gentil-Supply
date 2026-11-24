@@ -17,33 +17,33 @@ const hoyISO = new Date().toISOString().slice(0, 10);
 
 // Catálogo maestro y mapeo de cada presentación a su producto base individual
 const CATALOGO_PRODUCTOS = {
-  'muchy-u-med':        { baseId: 'muchy-med',        baseNombre: 'Muchy Mediano',                  marca: 'Muchy',            marcaKey: 'muchy', tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 0.60, nombre: 'Muchy Mediano (Unidad)' },
-  'muchy-caja-med':     { baseId: 'muchy-med',        baseNombre: 'Muchy Mediano',                  marca: 'Muchy',            marcaKey: 'muchy', tipo: 'Caja',    plural: 'Cajas',            contiene: 20, precio: 11.00, nombre: 'Caja Muchy Mediano' },
-  'muchy-u-xl':         { baseId: 'muchy-xl',         baseNombre: 'Muchy XL',                       marca: 'Muchy',            marcaKey: 'muchy', tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 1.00, nombre: 'Muchy XL (Unidad)' },
-  'muchy-caja-xl':      { baseId: 'muchy-xl',         baseNombre: 'Muchy XL',                       marca: 'Muchy',            marcaKey: 'muchy', tipo: 'Caja',    plural: 'Cajas',            contiene: 10, precio: 9.00, nombre: 'Caja Muchy XL' },
-  'muchy-manga-peq':    { baseId: 'muchy-peq',        baseNombre: 'Muchy Pequeño',                  marca: 'Muchy',            marcaKey: 'muchy', tipo: 'Manga',   plural: 'Mangas',           contiene: 12, precio: 5.00, nombre: 'Manga Muchy Pequeño' },
+  'muchy-u-med': { baseId: 'muchy-med', baseNombre: 'Muchy Mediano', marca: 'Muchy', marcaKey: 'muchy', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 0.60, nombre: 'Muchy Mediano (Unidad)' },
+  'muchy-caja-med': { baseId: 'muchy-med', baseNombre: 'Muchy Mediano', marca: 'Muchy', marcaKey: 'muchy', tipo: 'Caja', plural: 'Cajas', contiene: 20, precio: 11.00, nombre: 'Caja Muchy Mediano' },
+  'muchy-u-xl': { baseId: 'muchy-xl', baseNombre: 'Muchy XL', marca: 'Muchy', marcaKey: 'muchy', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 1.00, nombre: 'Muchy XL (Unidad)' },
+  'muchy-caja-xl': { baseId: 'muchy-xl', baseNombre: 'Muchy XL', marca: 'Muchy', marcaKey: 'muchy', tipo: 'Caja', plural: 'Cajas', contiene: 10, precio: 9.00, nombre: 'Caja Muchy XL' },
+  'muchy-manga-peq': { baseId: 'muchy-peq', baseNombre: 'Muchy Pequeño', marca: 'Muchy', marcaKey: 'muchy', tipo: 'Manga', plural: 'Mangas', contiene: 12, precio: 5.00, nombre: 'Manga Muchy Pequeño' },
 
-  'puig-u-maria':       { baseId: 'puig-maria',       baseNombre: 'Galletas María Delicia',         marca: 'Galleterías PUIG', marcaKey: 'puig',  tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 0.50, nombre: 'María Delicia (Unidad)' },
-  'puig-caja-maria':    { baseId: 'puig-maria',       baseNombre: 'Galletas María Delicia',         marca: 'Galleterías PUIG', marcaKey: 'puig',  tipo: 'Caja',    plural: 'Cajas',            contiene: 24, precio: 11.00, nombre: 'Caja María Delicia' },
-  'puig-disp-maria':    { baseId: 'puig-maria',       baseNombre: 'Galletas María Delicia',         marca: 'Galleterías PUIG', marcaKey: 'puig',  tipo: 'Display', plural: 'Displays pequeños', contiene: 18, precio: 8.50, nombre: 'Display María Delicia (pequeño)' },
-  'puig-u-katy':        { baseId: 'puig-katy',        baseNombre: 'Galletas Katy',                  marca: 'Galleterías PUIG', marcaKey: 'puig',  tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 0.80, nombre: 'Katy (Unidad)' },
-  'puig-caja-katy':     { baseId: 'puig-katy',        baseNombre: 'Galletas Katy',                  marca: 'Galleterías PUIG', marcaKey: 'puig',  tipo: 'Caja',    plural: 'Cajas',            contiene: 24, precio: 18.00, nombre: 'Caja Katy' },
-  'puig-disp-katy':     { baseId: 'puig-katy',        baseNombre: 'Galletas Katy',                  marca: 'Galleterías PUIG', marcaKey: 'puig',  tipo: 'Display', plural: 'Displays grandes',  contiene: 24, precio: 18.00, nombre: 'Display Katy (grande)' },
+  'puig-u-maria': { baseId: 'puig-maria', baseNombre: 'Galletas María Delicia', marca: 'Galleterías PUIG', marcaKey: 'puig', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 0.50, nombre: 'María Delicia (Unidad)' },
+  'puig-caja-maria': { baseId: 'puig-maria', baseNombre: 'Galletas María Delicia', marca: 'Galleterías PUIG', marcaKey: 'puig', tipo: 'Caja', plural: 'Cajas', contiene: 24, precio: 11.00, nombre: 'Caja María Delicia' },
+  'puig-disp-maria': { baseId: 'puig-maria', baseNombre: 'Galletas María Delicia', marca: 'Galleterías PUIG', marcaKey: 'puig', tipo: 'Display', plural: 'Displays pequeños', contiene: 18, precio: 8.50, nombre: 'Display María Delicia (pequeño)' },
+  'puig-u-katy': { baseId: 'puig-katy', baseNombre: 'Galletas Katy', marca: 'Galleterías PUIG', marcaKey: 'puig', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 0.80, nombre: 'Katy (Unidad)' },
+  'puig-caja-katy': { baseId: 'puig-katy', baseNombre: 'Galletas Katy', marca: 'Galleterías PUIG', marcaKey: 'puig', tipo: 'Caja', plural: 'Cajas', contiene: 24, precio: 18.00, nombre: 'Caja Katy' },
+  'puig-disp-katy': { baseId: 'puig-katy', baseNombre: 'Galletas Katy', marca: 'Galleterías PUIG', marcaKey: 'puig', tipo: 'Display', plural: 'Displays grandes', contiene: 24, precio: 18.00, nombre: 'Display Katy (grande)' },
 
-  'fisa-u-crema-20':    { baseId: 'fisa-crema-20',    baseNombre: 'Crema para el Cuerpo 20 ml',     marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 0.80, nombre: 'Crema para el Cuerpo 20 ml (Unidad)' },
-  'fisa-caja-crema-20': { baseId: 'fisa-crema-20',    baseNombre: 'Crema para el Cuerpo 20 ml',     marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Caja',    plural: 'Cajas',            contiene: 12, precio: 9.00, nombre: 'Caja Crema para el Cuerpo 20 ml (12 und)' },
-  'fisa-u-crema-365':   { baseId: 'fisa-crema-365',   baseNombre: 'Crema para el Cuerpo 365 ml',    marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 3.50, nombre: 'Crema para el Cuerpo 365 ml (Unidad)' },
-  'fisa-caja-crema-365':{ baseId: 'fisa-crema-365',   baseNombre: 'Crema para el Cuerpo 365 ml',    marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Caja',    plural: 'Cajas',            contiene: 12, precio: 40.00, nombre: 'Caja Crema para el Cuerpo 365 ml (12 und)' },
-  'fisa-u-crema-800':   { baseId: 'fisa-crema-800',   baseNombre: 'Crema para el Cuerpo 800 ml',    marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 6.50, nombre: 'Crema para el Cuerpo 800 ml (Unidad)' },
-  'fisa-caja-crema-800':{ baseId: 'fisa-crema-800',   baseNombre: 'Crema para el Cuerpo 800 ml',    marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Caja',    plural: 'Cajas',            contiene: 12, precio: 75.00, nombre: 'Caja Crema para el Cuerpo 800 ml (12 und)' },
-  'fisa-u-jabon':       { baseId: 'fisa-jabon',       baseNombre: 'Jabón de Baño Every Night',      marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 1.00, nombre: 'Jabón de Baño Every Night (Unidad)' },
-  'fisa-caja-jabon':    { baseId: 'fisa-jabon',       baseNombre: 'Jabón de Baño Every Night',      marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Caja',    plural: 'Cajas',            contiene: 36, precio: 32.00, nombre: 'Caja Jabón de Baño Every Night (36 und)' },
-  'fisa-u-deo-60':      { baseId: 'fisa-deo-60',      baseNombre: 'Desodorante Every Night 60 g',   marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 2.00, nombre: 'Desodorante Every Night 60 g (Unidad)' },
-  'fisa-caja-deo-60':   { baseId: 'fisa-deo-60',      baseNombre: 'Desodorante Every Night 60 g',   marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Caja',    plural: 'Cajas',            contiene: 12, precio: 22.00, nombre: 'Caja Desodorante Every Night 60 g (12 und)' },
-  'fisa-u-deo-90':      { baseId: 'fisa-deo-90',      baseNombre: 'Desodorante Every Night 90 g',   marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Unidad',  plural: 'Unidades sueltas', contiene: 1,  precio: 2.80, nombre: 'Desodorante Every Night 90 g (Unidad)' },
-  'fisa-caja-deo-90':   { baseId: 'fisa-deo-90',      baseNombre: 'Desodorante Every Night 90 g',   marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Caja',    plural: 'Cajas',            contiene: 12, precio: 31.00, nombre: 'Caja Desodorante Every Night 90 g (12 und)' },
-  'fisa-u-deo-sachet':  { baseId: 'fisa-deo-sachet',  baseNombre: 'Desodorante Every Night Sachet', marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Sobre',   plural: 'Sobres sueltos',   contiene: 1,  precio: 0.30, nombre: 'Desodorante Every Night Sachet (Sobre)' },
-  'fisa-ristra-deo':    { baseId: 'fisa-deo-sachet',  baseNombre: 'Desodorante Every Night Sachet', marca: 'Fisa',             marcaKey: 'fisa',  tipo: 'Ristra',  plural: 'Ristras',          contiene: 12, precio: 3.20, nombre: 'Ristra Desodorante Every Night Sachet' }
+  'fisa-u-crema-20': { baseId: 'fisa-crema-20', baseNombre: 'Crema para el Cuerpo 20 ml', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 0.80, nombre: 'Crema para el Cuerpo 20 ml (Unidad)' },
+  'fisa-caja-crema-20': { baseId: 'fisa-crema-20', baseNombre: 'Crema para el Cuerpo 20 ml', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Caja', plural: 'Cajas', contiene: 12, precio: 9.00, nombre: 'Caja Crema para el Cuerpo 20 ml (12 und)' },
+  'fisa-u-crema-365': { baseId: 'fisa-crema-365', baseNombre: 'Crema para el Cuerpo 365 ml', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 3.50, nombre: 'Crema para el Cuerpo 365 ml (Unidad)' },
+  'fisa-caja-crema-365': { baseId: 'fisa-crema-365', baseNombre: 'Crema para el Cuerpo 365 ml', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Caja', plural: 'Cajas', contiene: 12, precio: 40.00, nombre: 'Caja Crema para el Cuerpo 365 ml (12 und)' },
+  'fisa-u-crema-800': { baseId: 'fisa-crema-800', baseNombre: 'Crema para el Cuerpo 800 ml', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 6.50, nombre: 'Crema para el Cuerpo 800 ml (Unidad)' },
+  'fisa-caja-crema-800': { baseId: 'fisa-crema-800', baseNombre: 'Crema para el Cuerpo 800 ml', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Caja', plural: 'Cajas', contiene: 12, precio: 75.00, nombre: 'Caja Crema para el Cuerpo 800 ml (12 und)' },
+  'fisa-u-jabon': { baseId: 'fisa-jabon', baseNombre: 'Jabón de Baño Every Night', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 1.00, nombre: 'Jabón de Baño Every Night (Unidad)' },
+  'fisa-caja-jabon': { baseId: 'fisa-jabon', baseNombre: 'Jabón de Baño Every Night', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Caja', plural: 'Cajas', contiene: 36, precio: 32.00, nombre: 'Caja Jabón de Baño Every Night (36 und)' },
+  'fisa-u-deo-60': { baseId: 'fisa-deo-60', baseNombre: 'Desodorante Every Night 60 g', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 2.00, nombre: 'Desodorante Every Night 60 g (Unidad)' },
+  'fisa-caja-deo-60': { baseId: 'fisa-deo-60', baseNombre: 'Desodorante Every Night 60 g', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Caja', plural: 'Cajas', contiene: 12, precio: 22.00, nombre: 'Caja Desodorante Every Night 60 g (12 und)' },
+  'fisa-u-deo-90': { baseId: 'fisa-deo-90', baseNombre: 'Desodorante Every Night 90 g', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Unidad', plural: 'Unidades sueltas', contiene: 1, precio: 2.80, nombre: 'Desodorante Every Night 90 g (Unidad)' },
+  'fisa-caja-deo-90': { baseId: 'fisa-deo-90', baseNombre: 'Desodorante Every Night 90 g', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Caja', plural: 'Cajas', contiene: 12, precio: 31.00, nombre: 'Caja Desodorante Every Night 90 g (12 und)' },
+  'fisa-u-deo-sachet': { baseId: 'fisa-deo-sachet', baseNombre: 'Desodorante Every Night Sachet', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Sobre', plural: 'Sobres sueltos', contiene: 1, precio: 0.30, nombre: 'Desodorante Every Night Sachet (Sobre)' },
+  'fisa-ristra-deo': { baseId: 'fisa-deo-sachet', baseNombre: 'Desodorante Every Night Sachet', marca: 'Fisa', marcaKey: 'fisa', tipo: 'Ristra', plural: 'Ristras', contiene: 12, precio: 3.20, nombre: 'Ristra Desodorante Every Night Sachet' }
 };
 
 // Semillas de respaldo por si se abre Administrador antes que otros módulos
@@ -93,8 +93,10 @@ function despachosSemilla() {
     { id: 'GS-00101', facturaNumero: 'FAC-000002', ventaId: 'V-003', cliente: 'Minimarket Express', rif: 'J317788990', cond: 0, zona: 'Maneiro', fecha: hoyISO, estado: 'En Preparación', items: '50 Manga Muchy Pequeño (600 uds), 40 Ristra Desodorante Every Night Sachet (480 uds), 10 Caja María Delicia (240 uds)' },
     { id: 'GS-00102', facturaNumero: 'FAC-000003', ventaId: 'V-004', cliente: 'Bodega San José', rif: 'J289900112', cond: 1, zona: 'Díaz', fecha: hoyISO, estado: 'Completo', items: '25 Caja Muchy XL (250 uds), 6 Caja Desodorante Every Night 60 g (72 uds)' },
     { id: 'GS-00103', facturaNumero: 'FAC-000004', ventaId: 'V-006', cliente: 'Restaurant El Faro', rif: 'J401258770', cond: 2, zona: 'Maneiro', fecha: hoyISO, estado: 'Completo', items: '10 Caja Jabón de Baño Every Night (360 uds), 5 Display María Delicia (90 uds)' },
-    { id: 'GS-00104', facturaNumero: 'FAC-000005', ventaId: 'V-007', cliente: 'Supermercado Juan Griego', rif: 'J315500981', cond: 3, zona: 'Marcano', fecha: hoyISO, estado: 'Con Incidencia', items: '25 Caja Muchy XL (250 uds), 20 Ristra Desodorante Every Night Sachet (240 uds)',
-      incidencia: { tipo: 'transporte', motivo: 'Avería del vehículo', desc: 'Falla de caja en la vía a Juan Griego.', fecha: hoyISO, resuelta: false } }
+    {
+      id: 'GS-00104', facturaNumero: 'FAC-000005', ventaId: 'V-007', cliente: 'Supermercado Juan Griego', rif: 'J315500981', cond: 3, zona: 'Marcano', fecha: hoyISO, estado: 'Con Incidencia', items: '25 Caja Muchy XL (250 uds), 20 Ristra Desodorante Every Night Sachet (240 uds)',
+      incidencia: { tipo: 'transporte', motivo: 'Avería del vehículo', desc: 'Falla de caja en la vía a Juan Griego.', fecha: hoyISO, resuelta: false }
+    }
   ];
 }
 
@@ -286,7 +288,7 @@ function logout() {
     icono: 'log-out',
     textoConfirmar: 'Cerrar Sesión',
     onConfirm: () => {
-      try { localStorage.removeItem('gs_sesion_activa'); } catch (e) {}
+      try { localStorage.removeItem('gs_sesion_activa'); } catch (e) { }
       window.location.href = '../login.php';
     }
   });
@@ -873,25 +875,25 @@ function renderRastreoMunicipios() {
     <!-- 5 Etapas de la Línea de Tiempo -->
     <div class="space-y-3">
       ${etapas.map(e => {
-        const esComp = e.estado === 'completado';
-        const esAct = e.estado === 'actual';
-        const esAnu = e.estado === 'anulado';
-        const badgeCls = esComp
-          ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-          : esAct
-            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
-            : esAnu
-              ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
-              : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
-        const circleCls = esComp
-          ? 'bg-[#1c4d37] text-white dark:bg-emerald-600'
-          : esAct
-            ? 'bg-amber-500 text-white'
-            : esAnu
-              ? 'bg-red-600 text-white'
-              : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
-        const textoEst = esComp ? 'Completado' : esAct ? 'En curso' : esAnu ? 'Anulado' : 'Pendiente';
-        return `
+    const esComp = e.estado === 'completado';
+    const esAct = e.estado === 'actual';
+    const esAnu = e.estado === 'anulado';
+    const badgeCls = esComp
+      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
+      : esAct
+        ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
+        : esAnu
+          ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+          : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-400';
+    const circleCls = esComp
+      ? 'bg-[#1c4d37] text-white dark:bg-emerald-600'
+      : esAct
+        ? 'bg-amber-500 text-white'
+        : esAnu
+          ? 'bg-red-600 text-white'
+          : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400';
+    const textoEst = esComp ? 'Completado' : esAct ? 'En curso' : esAnu ? 'Anulado' : 'Pendiente';
+    return `
           <div class="flex items-start gap-3.5 p-3 rounded-xl border ${esComp ? 'bg-white dark:bg-gray-800 border-emerald-200/80 dark:border-emerald-800/50' : esAct ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-300 dark:border-amber-800/60' : 'bg-white/50 dark:bg-gray-800/40 border-gray-200/70 dark:border-gray-700/60'}">
             <div class="w-9 h-9 rounded-xl ${circleCls} flex items-center justify-center flex-shrink-0 font-bold text-xs shadow-xs">
               <i data-lucide="${e.icono}" class="w-4 h-4"></i>
@@ -909,7 +911,7 @@ function renderRastreoMunicipios() {
             </div>
           </div>
         `;
-      }).join('')}
+  }).join('')}
     </div>
   `;
 
@@ -1182,7 +1184,7 @@ function descargarReporteGerenciaCSV(tipo = 'facturas') {
         v.id,
         fmtFecha(v.fecha),
         v.cliente,
-         (fac && fac.rif) || rifDeCliente(v.cliente),
+        (fac && fac.rif) || rifDeCliente(v.cliente),
         mun,
         rutaCli,
         lineasDeVentaGerencia(v).join(' / '),
@@ -1242,10 +1244,13 @@ function imprimirReporteGerencia() {
   zona.innerHTML = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111827;font-size:11.5px;line-height:1.4;font-variant-numeric:tabular-nums">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1c4d37;padding-bottom:10px;margin-bottom:12px">
-        <div>
-          <div style="font-size:17px;font-weight:800;color:#1c4d37">Distribuidora Gentil Supply, C.A. — Módulo de Gerente</div>
-          <div style="font-size:12px;font-weight:700;color:#374151;margin-top:2px">Reporte Categorizado de Facturas, Líneas y Productos</div>
-          <div style="font-size:10.5px;color:#6b7280">Registros incluidos: ${ventasCat.length} operaciones</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <img src="../imagenes/logo_gs_verde.jpg" alt="Logo Gentil Supply" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid #1c4d37;flex-shrink:0">
+          <div>
+            <div style="font-size:17px;font-weight:800;color:#1c4d37">Distribuidora Gentil Supply, C.A. — Módulo de Gerente</div>
+            <div style="font-size:12px;font-weight:700;color:#374151;margin-top:2px">Reporte Categorizado de Facturas, Líneas y Productos</div>
+            <div style="font-size:10.5px;color:#6b7280">Registros incluidos: ${ventasCat.length} operaciones</div>
+          </div>
         </div>
         <div style="text-align:right;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 12px">
           <div style="font-size:10.5px;color:#4b5563">Fecha: <b>${esc(fmtFecha(hoyISO))}</b></div>
@@ -1287,7 +1292,7 @@ window.addEventListener('afterprint', () => {
 });
 
 function switchTabReporteAdmin(tab) {
-  ['facturas', 'productos', 'presentaciones'].forEach(t => {
+  ['facturas', 'productos', 'presentaciones', 'logs'].forEach(t => {
     const sec = $(`secRepAdmin-${t}`);
     const btn = $(`tabRepAdmin-${t}`);
     if (sec) sec.classList.toggle('hidden', t !== tab);
@@ -1297,6 +1302,309 @@ function switchTabReporteAdmin(tab) {
         : 'px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700';
     }
   });
+  if (tab === 'logs') {
+    renderLectorLogsGerencia();
+  }
+}
+
+// ======================================================================
+// LECTOR DE LOGS (BITÁCORA) Y DESCARGA DE BASE DE DATOS (.SQL)
+// ======================================================================
+let logsExternosCargados = [];
+
+function construirLogsConsolidadosGerencia() {
+  cargarTodo();
+  const registros = [];
+
+  // 1) Logs capturados en vivo por el sistema (gs_logs_sistema_v1)
+  try {
+    const guardados = JSON.parse(localStorage.getItem('gs_logs_sistema_v1') || '[]');
+    if (Array.isArray(guardados)) {
+      guardados.forEach(g => {
+        if (g && typeof g === 'object') registros.push(g);
+      });
+    }
+  } catch (e) { }
+
+  // 2) Logs externos cargados mediante el lector de archivos .log / .txt
+  logsExternosCargados.forEach(le => registros.push(le));
+
+  // 3) Reconstrucción de bitácora operativa histórica (facturas, ventas, pagos, despachos, clientes bloqueados e inventario)
+  facturas.forEach(f => {
+    if (f.estado === 'Anulada') {
+      registros.push({
+        id: `LOG-ANU-${f.numero}`,
+        fecha: f.fechaAnulacion || f.fecha || hoyISO,
+        hora: '16:20:00',
+        modulo: 'Facturación',
+        accion: 'Anulación de Factura',
+        detalle: `${f.numero} (Venta ${f.ventaId}) · Cliente: ${f.cliente} · Motivo: ${f.motivoAnulacion || 'Anulación fiscal'}`,
+        usuario: 'Facturación y Cobranzas',
+        nivel: 'critico'
+      });
+    } else {
+      registros.push({
+        id: `LOG-FAC-${f.numero}`,
+        fecha: f.fecha || hoyISO,
+        hora: '11:15:00',
+        modulo: 'Facturación',
+        accion: 'Emisión de Factura Fiscal',
+        detalle: `${f.numero} (Control ${f.control || '00-000001'}) · Venta ${f.ventaId} · Cliente: ${f.cliente} · Total: ${fmtUsd(f.total)}`,
+        usuario: 'Facturación y Cobranzas',
+        nivel: 'info'
+      });
+    }
+  });
+
+  ventas.forEach(v => {
+    if (v.estado === 'Cancelada') {
+      registros.push({
+        id: `LOG-VCAN-${v.id}`,
+        fecha: v.fechaAnulacion || v.fecha || hoyISO,
+        hora: '15:40:00',
+        modulo: 'Ventas',
+        accion: 'Anulación de Pedido',
+        detalle: `Pedido ${v.id} · Cliente: ${v.cliente} · Motivo: ${v.motivoAnulacion || 'Cancelado'}`,
+        usuario: `Vendedor ${rutaDeCliente(v.cliente, v)}`,
+        nivel: 'critico'
+      });
+    } else {
+      registros.push({
+        id: `LOG-VEN-${v.id}`,
+        fecha: v.fecha || hoyISO,
+        hora: '09:30:00',
+        modulo: 'Ventas',
+        accion: 'Registro de Venta',
+        detalle: `Pedido ${v.id} · Cliente: ${v.cliente} · Total: ${fmtUsd(v.total)} (${v.estado})`,
+        usuario: `Vendedor ${rutaDeCliente(v.cliente, v)}`,
+        nivel: 'info'
+      });
+    }
+  });
+
+  pagos.forEach(p => {
+    const niv = p.estado === 'Rechazado' ? 'critico' : (p.estado === 'Por Verificar' ? 'alerta' : 'info');
+    registros.push({
+      id: `LOG-PAG-${p.id}`,
+      fecha: p.fecha || hoyISO,
+      hora: '12:05:00',
+      modulo: 'Cobranzas',
+      accion: `Cobro (${p.estado || 'Completado'})`,
+      detalle: `Pago ${p.id} · Venta ${p.ventaId} · ${p.cliente} · ${p.metodo}${p.referencia ? ' Ref. ' + p.referencia : ''} · ${fmtUsd(p.monto)}`,
+      usuario: p.estado === 'Por Verificar' ? `Vendedor ${rutaDeCliente(p.cliente)}` : 'Facturación y Cobranzas',
+      nivel: niv
+    });
+  });
+
+  despachos.forEach(d => {
+    if (d.estado === 'Con Incidencia' && d.incidencia) {
+      registros.push({
+        id: `LOG-INC-${d.id}`,
+        fecha: d.incidencia.fecha || d.fecha || hoyISO,
+        hora: '14:50:00',
+        modulo: 'Despacho',
+        accion: 'Incidencia en Ruta',
+        detalle: `Guía ${d.id} (${d.facturaNumero || ''}) · ${d.cliente} · ${d.incidencia.motivo}: ${d.incidencia.desc || ''}`,
+        usuario: 'Operador de Despacho',
+        nivel: 'alerta'
+      });
+    } else {
+      registros.push({
+        id: `LOG-DESP-${d.id}`,
+        fecha: d.fecha || hoyISO,
+        hora: '13:10:00',
+        modulo: 'Despacho',
+        accion: `Guía de Carga (${d.estado})`,
+        detalle: `Guía ${d.id} · Factura ${d.facturaNumero || 'N/A'} · Destino: ${d.zona} · Cliente: ${d.cliente}`,
+        usuario: 'Operador de Despacho',
+        nivel: 'info'
+      });
+    }
+  });
+
+  clientes.forEach(c => {
+    if (c && c.activo === false) {
+      registros.push({
+        id: `LOG-BLOQ-${c.rif}`,
+        fecha: hoyISO,
+        hora: '10:00:00',
+        modulo: 'Ventas',
+        accion: 'Cliente Bloqueado',
+        detalle: `Cliente "${c.nombre}" (${c.rif}) · Ruta: ${c.ruta || 'Ruta 2'} · Motivo: ${c.motivoBloqueo || 'Bloqueo comercial activo'}`,
+        usuario: `Vendedor ${c.ruta || 'Ruta 2'}`,
+        nivel: 'critico'
+      });
+    }
+  });
+
+  try {
+    const movs = JSON.parse(localStorage.getItem('gs_movimientos_inv_v1') || '[]');
+    if (Array.isArray(movs)) {
+      movs.forEach(m => {
+        registros.push({
+          id: `LOG-INV-${m.id}`,
+          fecha: m.fecha || hoyISO,
+          hora: '08:45:00',
+          modulo: 'Inventario',
+          accion: m.tipo === 'entrada' ? 'Entrada de Mercancía' : (m.tipo === 'merma' ? 'Merma de Almacén' : 'Salida a Despacho'),
+          detalle: `${m.id} · ${m.referencia || m.observacion || 'Movimiento de almacén'}`,
+          usuario: 'Almacén El Piache',
+          nivel: m.tipo === 'merma' ? 'alerta' : 'info'
+        });
+      });
+    }
+  } catch (e) { }
+
+  return registros.sort((a, b) => {
+    const fa = `${a.fecha || ''} ${a.hora || ''}`;
+    const fb = `${b.fecha || ''} ${b.hora || ''}`;
+    return fb.localeCompare(fa);
+  });
+}
+
+function badgeNivelLog(nivel) {
+  if (nivel === 'critico') {
+    return '<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300">Crítico</span>';
+  }
+  if (nivel === 'alerta') {
+    return '<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">Alerta</span>';
+  }
+  return '<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Info</span>';
+}
+
+function obtenerLogsFiltradosGerencia() {
+  const todos = construirLogsConsolidadosGerencia();
+  const q = (($('busquedaLogsReporte') && $('busquedaLogsReporte').value) || '').trim().toLowerCase();
+  const fMod = ($('filtroModuloLogsReporte') && $('filtroModuloLogsReporte').value) || 'todos';
+  const fNiv = ($('filtroNivelLogsReporte') && $('filtroNivelLogsReporte').value) || 'todos';
+
+  return todos.filter(l => {
+    if (fMod !== 'todos' && l.modulo !== fMod) return false;
+    if (fNiv !== 'todos' && l.nivel !== fNiv) return false;
+    if (q && !(`${l.id} ${l.fecha} ${l.modulo} ${l.accion} ${l.detalle} ${l.usuario}`).toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function renderLectorLogsGerencia() {
+  const tbody = $('tablaLogsSistema');
+  if (!tbody) return;
+  const lista = obtenerLogsFiltradosGerencia();
+
+  tbody.innerHTML = lista.length ? lista.map(l => `
+    <tr class="hover:bg-gray-50/80 dark:hover:bg-gray-700/40 transition-colors">
+      <td class="py-3 px-4 whitespace-nowrap">
+        <p class="font-mono font-bold text-[#1c4d37] dark:text-emerald-400">${esc(l.id)}</p>
+        <p class="font-mono text-[11px] text-gray-400 dark:text-gray-500">${esc(fmtFecha(l.fecha))} · ${esc(l.hora || '00:00:00')}</p>
+      </td>
+      <td class="py-3 px-4">
+        <span class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">${esc(l.modulo)}</span>
+      </td>
+      <td class="py-3 px-4 font-semibold text-gray-900 dark:text-white">${esc(l.accion)}</td>
+      <td class="py-3 px-4 text-gray-600 dark:text-gray-300 max-w-md">${esc(l.detalle)}</td>
+      <td class="py-3 px-4 font-medium text-gray-700 dark:text-gray-300">${esc(l.usuario)}</td>
+      <td class="py-3 px-4 text-center">${badgeNivelLog(l.nivel)}</td>
+    </tr>
+  `).join('') : '<tr><td colspan="6" class="text-center py-8 text-gray-400 dark:text-gray-500">No se encontraron registros de log con esos filtros.</td></tr>';
+
+  if (window.lucide) lucide.createIcons();
+}
+
+function cargarArchivoLogExterno(event) {
+  const file = event && event.target && event.target.files ? event.target.files[0] : null;
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const contenido = String(reader.result || '');
+    const lineas = contenido.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const nuevos = [];
+    lineas.forEach((linea, idx) => {
+      const esErr = /error|critico|anula|bloque|rechaz|fail/i.test(linea);
+      const esWarn = /warn|alerta|incidencia|pendiente/i.test(linea);
+      nuevos.push({
+        id: `EXT-${String(idx + 1).padStart(4, '0')}`,
+        fecha: hoyISO,
+        hora: new Date().toTimeString().slice(0, 8),
+        modulo: 'Archivo Externo',
+        accion: `Línea #${idx + 1} (${file.name})`,
+        detalle: linea.slice(0, 320),
+        usuario: file.name,
+        nivel: esErr ? 'critico' : (esWarn ? 'alerta' : 'info')
+      });
+    });
+    logsExternosCargados = [...nuevos, ...logsExternosCargados];
+    if ($('filtroModuloLogsReporte')) $('filtroModuloLogsReporte').value = 'Archivo Externo';
+    renderLectorLogsGerencia();
+    if (window.mostrarNotificacionSistema) {
+      window.mostrarNotificacionSistema(`Archivo "${file.name}" cargado en el Lector de Logs (${nuevos.length} líneas).`);
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+  event.target.value = '';
+}
+
+function descargarLogsSistema() {
+  const lista = obtenerLogsFiltradosGerencia();
+  if (!lista.length) {
+    if (window.mostrarNotificacionSistema) window.mostrarNotificacionSistema('No hay registros en el Lector de Logs para descargar.');
+    return;
+  }
+  const lineas = lista.map(l =>
+    `[${l.fecha} ${l.hora || '00:00:00'}] [${String(l.nivel || 'info').toUpperCase()}] [${l.modulo}] (${l.id}) ${l.accion} — ${l.detalle} | Usuario: ${l.usuario}`
+  );
+  const blob = new Blob([lineas.join('\r\n')], { type: 'text/plain;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Bitacora_Logs_GentilSupply_${hoyISO}.log`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  if (window.mostrarNotificacionSistema) {
+    window.mostrarNotificacionSistema(`Bitácora de logs descargada (${lista.length} eventos).`);
+  }
+}
+
+async function descargarBaseDatosSistema() {
+  if (typeof window.gsSincronizarTodoConDB === 'function') {
+    window.gsSincronizarTodoConDB();
+  }
+  if (typeof window.registrarLogSistema === 'function') {
+    window.registrarLogSistema({
+      modulo: 'Gerencia / Base de Datos',
+      accion: 'Descarga de Base de Datos (.SQL)',
+      detalle: 'Exportación completa de la base de datos MySQL Gentil Supply solicitada desde Reportes Categorizados',
+      nivel: 'info'
+    });
+  }
+
+  const nombreSql = `gentil_supply_backup_${hoyISO}.sql`;
+  try {
+    const resp = await fetch(`../Base de Datos/api.php?action=export_sql&_t=${Date.now()}`, { cache: 'no-store' });
+    if (resp.ok) {
+      const textoSql = await resp.text();
+      if (textoSql && textoSql.includes('CREATE')) {
+        const blob = new Blob([textoSql], { type: 'application/sql;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreSql;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        if ($('tablaLogsSistema')) renderLectorLogsGerencia();
+        if (window.mostrarNotificacionSistema) {
+          window.mostrarNotificacionSistema(`Base de datos descargada exitosamente (${nombreSql}).`);
+        }
+        return;
+      }
+    }
+  } catch (e) { }
+
+  // Fallback si la descarga vía fetch no estuvo disponible
+  window.location.href = `../Base de Datos/api.php?action=export_sql&_t=${Date.now()}`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1306,6 +1614,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderRastreoMunicipios();
   }
   renderReportes();
+  renderLectorLogsGerencia();
   const refrescarGerencia = () => {
     initAdminDashboard();
     if ($('gridMunicipiosRastreo') && !$('kpiAdminVentas')) {
@@ -1313,6 +1622,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderRastreoMunicipios();
     }
     renderReportes();
+    renderLectorLogsGerencia();
   };
   window.addEventListener('storage', refrescarGerencia);
   window.addEventListener('bcv-tasa-actualizada', refrescarGerencia);

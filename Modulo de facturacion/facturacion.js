@@ -550,10 +550,13 @@ function documentoFactura(f) {
   <div style="font-family:Arial,Helvetica,sans-serif;color:#111827;font-size:12px;line-height:1.45;font-variant-numeric:tabular-nums">
     ${f.estado === 'Anulada' ? `<div class="print-avoid-break" style="border:1.5px solid #dc2626;border-left:4px solid #dc2626;background:#fef2f2;color:#991b1b;font-weight:700;text-align:center;padding:8px 12px;border-radius:6px;margin-bottom:12px">FACTURA ANULADA el ${esc(f.fechaAnulacion)} — ${esc(f.motivoAnulacion)}</div>` : ''}
     <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1c4d37;padding-bottom:12px;margin-bottom:14px">
-      <div>
-        <div style="font-size:18px;font-weight:800;color:#1c4d37;letter-spacing:-0.01em">${esc(EMPRESA.razonSocial)}</div>
-        <div style="font-size:11.5px;color:#374151;margin-top:2px">RIF: <b>${esc(EMPRESA.rif)}</b></div>
-        <div style="font-size:11px;color:#4b5563">${esc(EMPRESA.domicilio)}</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <img src="../imagenes/logo_gs_verde.jpg" alt="Logo Gentil Supply" style="width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid #1c4d37;flex-shrink:0">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:#1c4d37;letter-spacing:-0.01em">${esc(EMPRESA.razonSocial)}</div>
+          <div style="font-size:11.5px;color:#374151;margin-top:2px">RIF: <b>${esc(EMPRESA.rif)}</b></div>
+          <div style="font-size:11px;color:#4b5563">${esc(EMPRESA.domicilio)}</div>
+        </div>
       </div>
       <div style="text-align:right">
         <div style="display:inline-block;padding:2px 10px;border-radius:6px;background:#ecfdf5;border:1px solid #a7f3d0;color:#1c4d37;font-size:10px;font-weight:800;letter-spacing:.06em;margin-bottom:4px">FACTURA FISCAL</div>
@@ -1805,10 +1808,13 @@ function imprimirReporteFacturacion() {
   $('zonaImpresion').innerHTML = `
     <div style="font-family:Arial,Helvetica,sans-serif;color:#111827;font-size:11.5px;line-height:1.4;font-variant-numeric:tabular-nums">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1c4d37;padding-bottom:10px;margin-bottom:12px">
-        <div>
-          <div style="font-size:17px;font-weight:800;color:#1c4d37">${esc(EMPRESA.razonSocial)}</div>
-          <div style="font-size:12px;font-weight:700;color:#374151;margin-top:2px">Libro y Reporte Fiscal de Facturación</div>
-          <div style="font-size:10.5px;color:#6b7280">RIF: ${esc(EMPRESA.rif)} · Registros: ${lista.length} facturas</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <img src="../imagenes/logo_gs_verde.jpg" alt="Logo Gentil Supply" style="width:44px;height:44px;border-radius:10px;object-fit:cover;border:1px solid #1c4d37;flex-shrink:0">
+          <div>
+            <div style="font-size:17px;font-weight:800;color:#1c4d37">${esc(EMPRESA.razonSocial)}</div>
+            <div style="font-size:12px;font-weight:700;color:#374151;margin-top:2px">Libro y Reporte Fiscal de Facturación</div>
+            <div style="font-size:10.5px;color:#6b7280">RIF: ${esc(EMPRESA.rif)} · Registros: ${lista.length} facturas</div>
+          </div>
         </div>
         <div style="text-align:right;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:7px 12px">
           <div style="font-size:10.5px;color:#4b5563">Fecha de emisión: <b>${esc(fmtFecha(hoyISO))}</b></div>

@@ -176,19 +176,27 @@
     <!-- Cuadro Principal de Órdenes (Diseño unificado con Historial de Ventas) -->
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 transition-colors">
       <!-- Filtros y vista -->
-      <div class="flex flex-col md:flex-row gap-3 mb-6">
-        <div class="relative flex-1">
+      <div class="flex flex-col md:flex-row flex-wrap gap-3 mb-6">
+        <div class="relative flex-1 min-w-[220px]">
           <i data-lucide="search" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
           <input id="search" type="text" placeholder="Buscar por cliente, RIF o N° de orden..." class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-3 pl-10 pr-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm">
         </div>
         <div class="relative">
-          <select id="filterEstado" class="w-full md:w-56 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-3 pl-4 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm cursor-pointer">
+          <select id="filterEstado" class="w-full md:w-52 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-3 pl-4 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm cursor-pointer">
             <option value="">Todos los estados</option>
             <option value="En Preparación">En Preparación</option>
             <option value="Completo">Completo</option>
             <option value="Con Incidencia">Con Incidencia</option>
           </select>
           <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <div class="relative">
+            <input id="filterFecha" type="date" title="Filtrar órdenes por fecha" class="w-full md:w-44 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-3 px-3.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1c4d37]/20 focus:border-[#1c4d37] text-sm cursor-pointer">
+          </div>
+          <button type="button" id="btnLimpiarFechaDesp" onclick="limpiarFiltroFechaDespachos()" title="Mostrar todas las fechas" class="hidden p-3 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
         </div>
         <div class="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 self-start md:self-auto">
           <button id="btnTabla" onclick="setVista('tabla')">Tabla</button>

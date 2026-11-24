@@ -103,25 +103,27 @@
 
   <!-- CONTENIDO PRINCIPAL: INVENTARIO DE ALMACÉN Y DESPACHO -->
   <main class="flex-1 overflow-y-auto p-8">
-    <!-- Encabezado -->
-    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <div data-logo-modulo="true" class="inline-flex items-center gap-2 px-3 py-1.5 mb-2.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
-          <div class="w-6 h-6 rounded-lg bg-[#1c4d37] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
-            <i data-lucide="truck" class="w-3.5 h-3.5"></i>
-          </div>
-          <span class="text-xs font-bold tracking-wide text-[#1c4d37] dark:text-emerald-400">Gentil Supply · Módulo de Despacho</span>
+    <!-- Encabezado (Botones pegados a la derecha alineados con la esquina derecha del DataGrid) -->
+    <div class="mb-6 w-full">
+      <div data-logo-modulo="true" class="inline-flex items-center gap-2 px-3 py-1.5 mb-2.5 rounded-xl bg-white dark:bg-gray-800 border border-emerald-200/80 dark:border-emerald-800/60 shadow-sm">
+        <div class="w-6 h-6 rounded-lg bg-[#1c4d37] dark:bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+          <i data-lucide="truck" class="w-3.5 h-3.5"></i>
         </div>
-        <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white">Inventario de Almacén y Despacho</h2>
-        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Control de existencias por marca, presentación y unidades individuales (Muchy, Galleterías PUIG y Fisa).</p>
+        <span class="text-xs font-bold tracking-wide text-[#1c4d37] dark:text-emerald-400">Gentil Supply · Módulo de Despacho</span>
       </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <button onclick="abrirKardex()" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-3 rounded-xl font-medium shadow-sm transition-colors text-sm flex items-center gap-2">
-          <i data-lucide="history" class="w-4 h-4 text-[#1c4d37] dark:text-emerald-400"></i> Historial / Kardex
-        </button>
-        <button onclick="irARegistroMovimiento()" class="bg-[#1c4d37] hover:bg-[#133928] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-medium shadow-sm transition-colors text-sm flex items-center gap-2">
-          <i data-lucide="plus-circle" class="w-5 h-5"></i> Registrar Movimiento
-        </button>
+      <div class="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-3xl font-bold text-[#1c4d37] dark:text-white">Inventario de Almacén y Despacho</h2>
+          <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Control de existencias por marca, presentación y unidades individuales (Muchy, Galleterías PUIG y Fisa).</p>
+        </div>
+        <div class="ml-auto flex flex-wrap items-center justify-end gap-3 flex-shrink-0">
+          <button onclick="abrirKardex()" class="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-3 rounded-xl font-medium shadow-sm transition-colors text-sm flex items-center gap-2">
+            <i data-lucide="history" class="w-4 h-4 text-[#1c4d37] dark:text-emerald-400"></i> Historial / Kardex
+          </button>
+          <button onclick="irARegistroMovimiento()" class="bg-[#1c4d37] hover:bg-[#133928] dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-medium shadow-sm transition-colors text-sm flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-5 h-5"></i> Registrar Movimiento
+          </button>
+        </div>
       </div>
     </div>
 
